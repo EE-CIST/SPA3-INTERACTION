@@ -4,8 +4,8 @@ project:
 
 render:
       - index.qmd
-      - Appli1-Carto.qmd
-
+      - BEN1_2013.qmd
+      - BEN2_2013.qmd
 
 website:
   title: "STA3 Interaction spatiale"
@@ -13,8 +13,8 @@ website:
     left:
       - href: index.qmd
         text: Home
-      - Appli1-Carto.qmd
-
+      - BEN1_2013.qmd
+      - BEN2_2013.qmd
 
 format:
   html:
