@@ -19,7 +19,7 @@ library(mapsf)
 
 
 
-## Benin 2013 / Dept
+## Benin 2013 / Niveau 2
 
 On utilise les données IPUMS du recensement de 2013. On s'intéresse aux migrations durée de vie (entre le lieu de naissance et le lieu de résidence).
 

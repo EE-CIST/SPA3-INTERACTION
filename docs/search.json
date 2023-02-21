@@ -1,24 +1,66 @@
 [
   {
-    "objectID": "BEN2_2013.html",
-    "href": "BEN2_2013.html",
-    "title": "BEN2-2013",
+    "objectID": "MLI2_2009.html",
+    "href": "MLI2_2009.html",
+    "title": "MLI2-2009",
     "section": "",
     "text": "On utilise les données IPUMS du recensement de 2013. On s’intéresse aux migrations durée de vie (entre le lieu de naissance et le lieu de résidence)."
   },
   {
-    "objectID": "BEN2_2013.html#fonds-de-carte",
-    "href": "BEN2_2013.html#fonds-de-carte",
-    "title": "BEN2-2013",
+    "objectID": "MLI2_2009.html#fonds-de-carte",
+    "href": "MLI2_2009.html#fonds-de-carte",
+    "title": "MLI2-2009",
     "section": "Fonds de carte",
     "text": "Fonds de carte\nOn utilise le découpage de premier niveau du pays."
   },
   {
-    "objectID": "BEN2_2013.html#matrice-de-migration-totale",
-    "href": "BEN2_2013.html#matrice-de-migration-totale",
-    "title": "BEN2-2013",
+    "objectID": "MLI2_2009.html#matrice-de-migration-totale",
+    "href": "MLI2_2009.html#matrice-de-migration-totale",
+    "title": "MLI2-2009",
     "section": "Matrice de migration totale",
-    "text": "Matrice de migration totale\nOn extrait la matrice de migration totale puis on calcule pour chaque paire de régions le solde et le volume des échanges.\n\n\n# A tibble: 6 × 12\n# Groups:   i [1]\n  i      j      Ni     Nj      Fij   Fji  FVij  FSij     Xi     Yi     Xj     Yj\n  <chr>  <chr>  <chr>  <chr> <dbl> <dbl> <dbl> <dbl>  <dbl>  <dbl>  <dbl>  <dbl>\n1 BJ0101 BJ0102 Banik… Gogo…   220   280   500    60 2.67e5 1.27e6 3.00e5 1.21e6\n2 BJ0101 BJ0103 Banik… Kandi   930   560  1490  -370 2.67e5 1.27e6 3.30e5 1.26e6\n3 BJ0101 BJ0104 Banik… Kari…    20   150   170   130 2.67e5 1.27e6 3.06e5 1.34e6\n4 BJ0101 BJ0105 Banik… Mala…   440   190   630  -250 2.67e5 1.27e6 3.64e5 1.31e6\n5 BJ0101 BJ0106 Banik… Ségb…    90    20   110   -70 2.67e5 1.27e6 3.86e5 1.22e6\n6 BJ0101 BJ0201 Banik… Bouk…    60    30    90   -30 2.67e5 1.27e6 1.27e5 1.15e6\n\n\n\nVolume\nOn représente les volumes de flux dont la valeur est supérieure à la moyenne .\n\n\n\n\n\n\n\nSolde\nOn représente les soldes de flux dont la valeur est supérieure à la moyenne .\n\n\n\n\n\n\n\nFlux dominant\nOn détermine pour chaque unité spatiale son flux le plus important vers une autre unité spatiale. On considère qu’une unité est de type :\n\ndominante si son nombre si son nombre d’arrivée est supérieur à l’unité vers laquelle elle envoie son plus grand flux.\ndominée si son nombre d’arrivée est inférieur à l’unité vers laquelle elle envoie son plus grand flux.\nrelais si elle est à la fois dominée et dominante."
+    "text": "Matrice de migration totale\nOn extrait la matrice de migration totale puis on calcule pour chaque paire de régions le solde et le volume des échanges.\n\n\n# A tibble: 6 × 12\n# Groups:   i [1]\n  i      j     Ni    Nj      Fij   Fji  FVij  FSij      Xi     Yi      Xj     Yj\n  <chr>  <chr> <chr> <chr> <dbl> <dbl> <dbl> <dbl>   <dbl>  <dbl>   <dbl>  <dbl>\n1 ML0101 ML01… Bafo… Diéma  1600   450  2050 -1150 -1.18e6 1.54e6 -1.02e6 1.64e6\n2 ML0101 ML01… Bafo… Kayes  2590   350  2940 -2240 -1.18e6 1.54e6 -1.28e6 1.64e6\n3 ML0101 ML01… Bafo… Kéni…  1670  2190  3860   520 -1.18e6 1.54e6 -1.23e6 1.43e6\n4 ML0101 ML01… Bafo… Kita   2360  2970  5330   610 -1.18e6 1.54e6 -1.05e6 1.49e6\n5 ML0101 ML01… Bafo… Nioro  1100  3480  4580  2380 -1.18e6 1.54e6 -1.07e6 1.70e6\n6 ML0101 ML01… Bafo… Yéli…   380   170   550  -210 -1.18e6 1.54e6 -1.18e6 1.70e6\n\n\n\nVolume\nOn représente les volumes de flux dont la valeur est supérieure à la moyenne .\n\n\n\n\n\n\n\nSolde\nOn représente les soldes de flux dont la valeur est supérieure à la moyenne .\n\n\n\n\n\n\n\nFlux dominant\nOn détermine pour chaque unité spatiale son flux le plus important vers une autre unité spatiale. On considère qu’une unité est de type :\n\ndominante si son nombre si son nombre d’arrivée est supérieur à l’unité vers laquelle elle envoie son plus grand flux.\ndominée si son nombre d’arrivée est inférieur à l’unité vers laquelle elle envoie son plus grand flux.\nrelais si elle est à la fois dominée et dominante."
+  },
+  {
+    "objectID": "SEN1_2013.html",
+    "href": "SEN1_2013.html",
+    "title": "SEN1-2013",
+    "section": "",
+    "text": "On utilise les données IPUMS du recensement de 2013. On s’intéresse aux migrations durée de vie (entre le lieu de naissance et le lieu de résidence)."
+  },
+  {
+    "objectID": "SEN1_2013.html#fonds-de-carte",
+    "href": "SEN1_2013.html#fonds-de-carte",
+    "title": "SEN1-2013",
+    "section": "Fonds de carte",
+    "text": "Fonds de carte\nOn utilise le découpage de premier niveau du pays."
+  },
+  {
+    "objectID": "SEN1_2013.html#matrice-de-migration-totale",
+    "href": "SEN1_2013.html#matrice-de-migration-totale",
+    "title": "SEN1-2013",
+    "section": "Matrice de migration totale",
+    "text": "Matrice de migration totale\nOn extrait la matrice de migration totale puis on calcule pour chaque paire de régions le solde et le volume des échanges.\n\n\n# A tibble: 6 × 12\n# Groups:   i [1]\n  i     j     Ni    Nj          Fij     Fji   FVij   FSij      Xi     Yi      Xj\n  <chr> <chr> <chr> <chr>     <dbl>   <dbl>  <dbl>  <dbl>   <dbl>  <dbl>   <dbl>\n1 SN01  SN02  Dakar Diourbel 46323. 107412. 1.54e5 61089. -1.92e6 1.66e6 -1.79e6\n2 SN01  SN03  Dakar Fatick   13542.  73566. 8.71e4 60024. -1.92e6 1.66e6 -1.82e6\n3 SN01  SN04  Dakar Kaffrine  8615.  18218. 2.68e4  9603. -1.92e6 1.66e6 -1.69e6\n4 SN01  SN05  Dakar Kaolack  14540.  95108. 1.10e5 80568. -1.92e6 1.66e6 -1.77e6\n5 SN01  SN06  Dakar Kédougou  1466.   7106. 8.57e3  5640. -1.92e6 1.66e6 -1.36e6\n6 SN01  SN07  Dakar Kolda     7433.  26629. 3.41e4 19196. -1.92e6 1.66e6 -1.60e6\n# … with 1 more variable: Yj <dbl>\n\n\n      i                  j                  Ni                 Nj           \n Length:182         Length:182         Length:182         Length:182        \n Class :character   Class :character   Class :character   Class :character  \n Mode  :character   Mode  :character   Mode  :character   Mode  :character  \n                                                                            \n                                                                            \n                                                                            \n      Fij                Fji                FVij             FSij        \n Min.   :   143.8   Min.   :   143.8   Min.   :   394   Min.   :-338009  \n 1st Qu.:  1278.9   1st Qu.:  1278.9   1st Qu.:  2605   1st Qu.:  -2319  \n Median :  3522.8   Median :  3522.8   Median :  7900   Median :      0  \n Mean   : 14606.7   Mean   : 14606.7   Mean   : 29213   Mean   :      0  \n 3rd Qu.:  8548.6   3rd Qu.:  8548.6   3rd Qu.: 28406   3rd Qu.:   2319  \n Max.   :340199.7   Max.   :340199.7   Max.   :342390   Max.   : 338009  \n       Xi                 Yi                Xj                 Yj         \n Min.   :-1921964   Min.   :1434555   Min.   :-1921964   Min.   :1434555  \n 1st Qu.:-1819743   1st Qu.:1463223   1st Qu.:-1819743   1st Qu.:1463223  \n Median :-1732614   Median :1595823   Median :-1732614   Median :1595823  \n Mean   :-1699003   Mean   :1598294   Mean   :-1699003   Mean   :1598294  \n 3rd Qu.:-1604878   3rd Qu.:1669899   3rd Qu.:-1604878   3rd Qu.:1669899  \n Max.   :-1357540   Max.   :1825121   Max.   :-1357540   Max.   :1825121  \n\n\n\nVolume\nOn représente les volumes de flux dont la valeur est supérieure à la moyenne .\n\n\n\n\n\n\n\nSolde\nOn représente les soldes de flux dont la valeur est supérieure à la moyenne .\n\n\n\n\n\n\n\nFlux dominant\nOn détermine pour chaque unité spatiale son flux le plus important vers une autre unité spatiale. On considère qu’une unité est de type :\n\ndominante si son nombre si son nombre d’arrivée est supérieur à l’unité vers laquelle elle envoie son plus grand flux.\ndominée si son nombre d’arrivée est inférieur à l’unité vers laquelle elle envoie son plus grand flux.\nrelais si elle est à la fois dominée et dominante."
+  },
+  {
+    "objectID": "BFA2_2008.html",
+    "href": "BFA2_2008.html",
+    "title": "BFA2-2008",
+    "section": "",
+    "text": "On utilise les données IPUMS du recensement de 2013. On s’intéresse aux migrations durée de vie (entre le lieu de naissance et le lieu de résidence)."
+  },
+  {
+    "objectID": "BFA2_2008.html#fonds-de-carte",
+    "href": "BFA2_2008.html#fonds-de-carte",
+    "title": "BFA2-2008",
+    "section": "Fonds de carte",
+    "text": "Fonds de carte\nOn utilise le découpage de premier niveau du pays."
+  },
+  {
+    "objectID": "BFA2_2008.html#matrice-de-migration-totale",
+    "href": "BFA2_2008.html#matrice-de-migration-totale",
+    "title": "BFA2-2008",
+    "section": "Matrice de migration totale",
+    "text": "Matrice de migration totale\nOn extrait la matrice de migration totale puis on calcule pour chaque paire de régions le solde et le volume des échanges.\n\n\n# A tibble: 6 × 12\n# Groups:   i [1]\n  i      j     Ni    Nj      Fij   Fji  FVij  FSij      Xi     Yi      Xj     Yj\n  <chr>  <chr> <chr> <chr> <dbl> <dbl> <dbl> <dbl>   <dbl>  <dbl>   <dbl>  <dbl>\n1 BF1300 BF46… Kadi… Balé   1260  6530  7790  5270 -1.67e5 1.38e6 -3.42e5 1.31e6\n2 BF1300 BF46… Kadi… Banwa   820  1220  2040   400 -1.67e5 1.38e6 -4.64e5 1.37e6\n3 BF1300 BF46… Kadi… Kossi   610  4790  5400  4180 -1.67e5 1.38e6 -4.32e5 1.45e6\n4 BF1300 BF46… Kadi… Mouh…  1760  8100  9860  6340 -1.67e5 1.38e6 -3.80e5 1.37e6\n5 BF1300 BF46… Kadi… Naya…   760  5770  6530  5010 -1.67e5 1.38e6 -3.37e5 1.43e6\n6 BF1300 BF46… Kadi… Sour…   850 11490 12340 10640 -1.67e5 1.38e6 -3.36e5 1.49e6\n\n\n\nVolume\nOn représente les volumes de flux dont la valeur est supérieure à la moyenne .\n\n\n\n\n\n\n\nSolde\nOn représente les soldes de flux dont la valeur est supérieure à la moyenne .\n\n\n\n\n\n\n\nFlux dominant\nOn détermine pour chaque unité spatiale son flux le plus important vers une autre unité spatiale. On considère qu’une unité est de type :\n\ndominante si son nombre si son nombre d’arrivée est supérieur à l’unité vers laquelle elle envoie son plus grand flux.\ndominée si son nombre d’arrivée est inférieur à l’unité vers laquelle elle envoie son plus grand flux.\nrelais si elle est à la fois dominée et dominante."
   },
   {
     "objectID": "BEN1_2013.html",
@@ -40,5 +82,68 @@
     "title": "BEN1-2013",
     "section": "Matrice de migration totale",
     "text": "Matrice de migration totale\nOn extrait la matrice de migration totale puis on calcule pour chaque paire de régions le solde et le volume des échanges.\n\n\n# A tibble: 6 × 12\n# Groups:   i [1]\n  i     j     Ni      Nj      Fij   Fji  FVij   FSij     Xi     Yi     Xj     Yj\n  <chr> <chr> <chr>   <chr> <dbl> <dbl> <dbl>  <dbl>  <dbl>  <dbl>  <dbl>  <dbl>\n1 BJ01  BJ02  Alibori Atak…  4720  2180  6900  -2540 3.23e5 1.27e6 1.75e5 1.20e6\n2 BJ01  BJ03  Alibori Atla…  2940   500  3440  -2440 3.23e5 1.27e6 2.47e5 7.38e5\n3 BJ01  BJ04  Alibori Borg… 17040  5460 22500 -11580 3.23e5 1.27e6 3.09e5 1.10e6\n4 BJ01  BJ05  Alibori Coll…  1950  2770  4720    820 3.23e5 1.27e6 2.45e5 9.09e5\n5 BJ01  BJ06  Alibori Kouf…   100   320   420    220 3.23e5 1.27e6 1.98e5 7.81e5\n6 BJ01  BJ07  Alibori Donga  1150  1910  3060    760 3.23e5 1.27e6 2.01e5 1.04e6\n\n\n\nVolume\nOn représente les volumes de flux dont la valeur est supérieure à la moyenne .\n\n\n\n\n\n\n\nSolde\nOn représente les soldes de flux dont la valeur est supérieure à la moyenne .\n\n\n\n\n\n\n\nFlux dominant\nOn détermine pour chaque unité spatiale son flux le plus important vers une autre unité spatiale. On considère qu’une unité est de type :\n\ndominante si son nombre si son nombre d’arrivée est supérieur à l’unité vers laquelle elle envoie son plus grand flux.\ndominée si son nombre d’arrivée est inférieur à l’unité vers laquelle elle envoie son plus grand flux.\nrelais si elle est à la fois dominée et dominante."
+  },
+  {
+    "objectID": "MLI1_2009.html",
+    "href": "MLI1_2009.html",
+    "title": "MLI1-2009",
+    "section": "",
+    "text": "On utilise les données IPUMS du recensement de 2013. On s’intéresse aux migrations durée de vie (entre le lieu de naissance et le lieu de résidence)."
+  },
+  {
+    "objectID": "MLI1_2009.html#fonds-de-carte",
+    "href": "MLI1_2009.html#fonds-de-carte",
+    "title": "MLI1-2009",
+    "section": "Fonds de carte",
+    "text": "Fonds de carte\nOn utilise le découpage de premier niveau du pays."
+  },
+  {
+    "objectID": "MLI1_2009.html#matrice-de-migration-totale",
+    "href": "MLI1_2009.html#matrice-de-migration-totale",
+    "title": "MLI1-2009",
+    "section": "Matrice de migration totale",
+    "text": "Matrice de migration totale\nOn extrait la matrice de migration totale puis on calcule pour chaque paire de régions le solde et le volume des échanges.\n\n\n# A tibble: 6 × 12\n# Groups:   i [1]\n  i     j     Ni    Nj       Fij   Fji  FVij  FSij      Xi     Yi      Xj     Yj\n  <chr> <chr> <chr> <chr>  <dbl> <dbl> <dbl> <dbl>   <dbl>  <dbl>   <dbl>  <dbl>\n1 ML01  ML02  Kayes Kouli… 29450 32960 62410  3510 -1.14e6 1.56e6 -8.51e5 1.53e6\n2 ML01  ML03  Kayes Sikas…  8930 10770 19700  1840 -1.14e6 1.56e6 -7.30e5 1.28e6\n3 ML01  ML04  Kayes Ségou   8050 13920 21970  5870 -1.14e6 1.56e6 -6.34e5 1.55e6\n4 ML01  ML05  Kayes Mopti   2000  6760  8760  4760 -1.14e6 1.56e6 -3.91e5 1.66e6\n5 ML01  ML06  Kayes Timbu…   550  1230  1780   680 -1.14e6 1.56e6 -3.98e5 2.29e6\n6 ML01  ML07  Kayes Gao      400  1350  1750   950 -1.14e6 1.56e6  1.50e5 1.90e6\n\n\n      i                  j                  Ni                 Nj           \n Length:90          Length:90          Length:90          Length:90         \n Class :character   Class :character   Class :character   Class :character  \n Mode  :character   Mode  :character   Mode  :character   Mode  :character  \n                                                                            \n                                                                            \n                                                                            \n                                                                            \n      Fij                Fji                FVij             FSij        \n Min.   :    30.0   Min.   :    30.0   Min.   :   100   Min.   :-126580  \n 1st Qu.:   402.5   1st Qu.:   402.5   1st Qu.:   850   1st Qu.:  -2605  \n Median :  2160.0   Median :  2160.0   Median :  5780   Median :      0  \n Mean   : 15147.1   Mean   : 15147.1   Mean   : 30294   Mean   :      0  \n 3rd Qu.: 14780.0   3rd Qu.: 14780.0   3rd Qu.: 35280   3rd Qu.:   2605  \n Max.   :157280.0   Max.   :157280.0   Max.   :268970   Max.   : 126580  \n                                                                         \n       Xi                 Yi                Xj                 Yj         \n Min.   :-1138864   Min.   :1281438   Min.   :-1138864   Min.   :1281438  \n 1st Qu.: -851040   1st Qu.:1532215   1st Qu.: -851040   1st Qu.:1532215  \n Median : -634327   Median :1560252   Median : -634327   Median :1560252  \n Mean   : -528309   Mean   :1710423   Mean   : -528309   Mean   :1710423  \n 3rd Qu.: -390851   3rd Qu.:1897525   3rd Qu.: -390851   3rd Qu.:1897525  \n Max.   :  149958   Max.   :2286799   Max.   :  149958   Max.   :2286799  \n NA's   :9          NA's   :9         NA's   :9          NA's   :9        \n\n\n\nVolume\nOn représente les volumes de flux dont la valeur est supérieure à la moyenne .\n\n\n\n\n\n\n\nSolde\nOn représente les soldes de flux dont la valeur est supérieure à la moyenne .\n\n\n\n\n\n\n\nFlux dominant\nOn détermine pour chaque unité spatiale son flux le plus important vers une autre unité spatiale. On considère qu’une unité est de type :\n\ndominante si son nombre si son nombre d’arrivée est supérieur à l’unité vers laquelle elle envoie son plus grand flux.\ndominée si son nombre d’arrivée est inférieur à l’unité vers laquelle elle envoie son plus grand flux.\nrelais si elle est à la fois dominée et dominante."
+  },
+  {
+    "objectID": "BEN2_2013.html",
+    "href": "BEN2_2013.html",
+    "title": "BEN2-2013",
+    "section": "",
+    "text": "On utilise les données IPUMS du recensement de 2013. On s’intéresse aux migrations durée de vie (entre le lieu de naissance et le lieu de résidence)."
+  },
+  {
+    "objectID": "BEN2_2013.html#fonds-de-carte",
+    "href": "BEN2_2013.html#fonds-de-carte",
+    "title": "BEN2-2013",
+    "section": "Fonds de carte",
+    "text": "Fonds de carte\nOn utilise le découpage de premier niveau du pays."
+  },
+  {
+    "objectID": "BEN2_2013.html#matrice-de-migration-totale",
+    "href": "BEN2_2013.html#matrice-de-migration-totale",
+    "title": "BEN2-2013",
+    "section": "Matrice de migration totale",
+    "text": "Matrice de migration totale\nOn extrait la matrice de migration totale puis on calcule pour chaque paire de régions le solde et le volume des échanges.\n\n\n# A tibble: 6 × 12\n# Groups:   i [1]\n  i      j      Ni     Nj      Fij   Fji  FVij  FSij     Xi     Yi     Xj     Yj\n  <chr>  <chr>  <chr>  <chr> <dbl> <dbl> <dbl> <dbl>  <dbl>  <dbl>  <dbl>  <dbl>\n1 BJ0101 BJ0102 Banik… Gogo…   220   280   500    60 2.67e5 1.27e6 3.00e5 1.21e6\n2 BJ0101 BJ0103 Banik… Kandi   930   560  1490  -370 2.67e5 1.27e6 3.30e5 1.26e6\n3 BJ0101 BJ0104 Banik… Kari…    20   150   170   130 2.67e5 1.27e6 3.06e5 1.34e6\n4 BJ0101 BJ0105 Banik… Mala…   440   190   630  -250 2.67e5 1.27e6 3.64e5 1.31e6\n5 BJ0101 BJ0106 Banik… Ségb…    90    20   110   -70 2.67e5 1.27e6 3.86e5 1.22e6\n6 BJ0101 BJ0201 Banik… Bouk…    60    30    90   -30 2.67e5 1.27e6 1.27e5 1.15e6\n\n\n\nVolume\nOn représente les volumes de flux dont la valeur est supérieure à la moyenne .\n\n\n\n\n\n\n\nSolde\nOn représente les soldes de flux dont la valeur est supérieure à la moyenne .\n\n\n\n\n\n\n\nFlux dominant\nOn détermine pour chaque unité spatiale son flux le plus important vers une autre unité spatiale. On considère qu’une unité est de type :\n\ndominante si son nombre si son nombre d’arrivée est supérieur à l’unité vers laquelle elle envoie son plus grand flux.\ndominée si son nombre d’arrivée est inférieur à l’unité vers laquelle elle envoie son plus grand flux.\nrelais si elle est à la fois dominée et dominante."
+  },
+  {
+    "objectID": "BFA1_2008.html",
+    "href": "BFA1_2008.html",
+    "title": "BFA1-2008",
+    "section": "",
+    "text": "On utilise les données IPUMS du recensement de 2013. On s’intéresse aux migrations durée de vie (entre le lieu de naissance et le lieu de résidence)."
+  },
+  {
+    "objectID": "BFA1_2008.html#fonds-de-carte",
+    "href": "BFA1_2008.html#fonds-de-carte",
+    "title": "BFA1-2008",
+    "section": "Fonds de carte",
+    "text": "Fonds de carte\nOn utilise le découpage de premier niveau du pays."
+  },
+  {
+    "objectID": "BFA1_2008.html#matrice-de-migration-totale",
+    "href": "BFA1_2008.html#matrice-de-migration-totale",
+    "title": "BFA1-2008",
+    "section": "Matrice de migration totale",
+    "text": "Matrice de migration totale\nOn extrait la matrice de migration totale puis on calcule pour chaque paire de régions le solde et le volume des échanges.\n\n\n# A tibble: 6 × 12\n# Groups:   i [1]\n  i     j     Ni    Nj      Fij   Fji   FVij  FSij      Xi     Yi      Xj     Yj\n  <chr> <chr> <chr> <chr> <dbl> <dbl>  <dbl> <dbl>   <dbl>  <dbl>   <dbl>  <dbl>\n1 BF13  BF46  Cent… Bouc…  6060 37900  43960 31840 -1.67e5 1.38e6 -3.88e5 1.41e6\n2 BF13  BF47  Cent… Casc…  4330  6530  10860  2200 -1.67e5 1.38e6 -5.09e5 1.16e6\n3 BF13  BF48  Cent… Cent…  7750 37570  45320 29820 -1.67e5 1.38e6 -2.07e4 1.30e6\n4 BF13  BF49  Cent… Cent…  5380 29910  35290 24530 -1.67e5 1.38e6 -1.09e5 1.49e6\n5 BF13  BF50  Cent… Cent… 16160 56180  72340 40020 -1.67e5 1.38e6 -2.47e5 1.32e6\n6 BF13  BF51  Cent… Cent… 10540 97980 108520 87440 -1.67e5 1.38e6 -1.36e5 1.30e6\n\n\n      i                  j                  Ni                 Nj           \n Length:156         Length:156         Length:156         Length:156        \n Class :character   Class :character   Class :character   Class :character  \n Mode  :character   Mode  :character   Mode  :character   Mode  :character  \n                                                                            \n                                                                            \n                                                                            \n      Fij             Fji             FVij             FSij       \n Min.   :  200   Min.   :  200   Min.   :   860   Min.   :-87440  \n 1st Qu.: 1088   1st Qu.: 1088   1st Qu.:  2840   1st Qu.: -3632  \n Median : 3025   Median : 3025   Median :  9020   Median :     0  \n Mean   : 8892   Mean   : 8892   Mean   : 17784   Mean   :     0  \n 3rd Qu.:10080   3rd Qu.:10080   3rd Qu.: 20250   3rd Qu.:  3632  \n Max.   :97980   Max.   :97980   Max.   :108520   Max.   : 87440  \n       Xi                Yi                Xj                Yj         \n Min.   :-508788   Min.   :1158718   Min.   :-508788   Min.   :1158718  \n 1st Qu.:-359652   1st Qu.:1298323   1st Qu.:-359652   1st Qu.:1298323  \n Median :-167235   Median :1371906   Median :-167235   Median :1371906  \n Mean   :-211278   Mean   :1360149   Mean   :-211278   Mean   :1360149  \n 3rd Qu.:-108500   3rd Qu.:1407499   3rd Qu.:-108500   3rd Qu.:1407499  \n Max.   : 102358   Max.   :1591193   Max.   : 102358   Max.   :1591193  \n\n\n\nVolume\nOn représente les volumes de flux dont la valeur est supérieure à la moyenne .\n\n\n\n\n\n\n\nSolde\nOn représente les soldes de flux dont la valeur est supérieure à la moyenne .\n\n\n\n\n\n\n\nFlux dominant\nOn détermine pour chaque unité spatiale son flux le plus important vers une autre unité spatiale. On considère qu’une unité est de type :\n\ndominante si son nombre si son nombre d’arrivée est supérieur à l’unité vers laquelle elle envoie son plus grand flux.\ndominée si son nombre d’arrivée est inférieur à l’unité vers laquelle elle envoie son plus grand flux.\nrelais si elle est à la fois dominée et dominante."
   }
 ]

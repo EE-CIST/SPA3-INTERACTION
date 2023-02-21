@@ -6,6 +6,11 @@ render:
       - index.qmd
       - BEN1_2013.qmd
       - BEN2_2013.qmd
+      - BFA1_2008.qmd
+      - BFA2_2008.qmd
+      - MLI1_2009.qmd
+      - MLI2_2009.qmd
+      - SEN1_2013.qmd
 
 website:
   title: "STA3 Interaction spatiale"
@@ -15,6 +20,12 @@ website:
         text: Home
       - BEN1_2013.qmd
       - BEN2_2013.qmd
+      - BFA1_2008.qmd
+      - BFA2_2008.qmd
+      - MLI1_2009.qmd
+      - MLI2_2009.qmd      
+      - SEN1_2013.qmd
+
 
 format:
   html:
