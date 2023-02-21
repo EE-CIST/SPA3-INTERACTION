@@ -1,19 +1,29 @@
 project:
   type: website
+  output-dir: docs
+
+render:
+      - index.qmd
+      - Appli1-Carto.qmd
+
 
 website:
-  title: "quarto-website"
+  title: "STA3 Interaction spatiale"
   navbar:
     left:
       - href: index.qmd
         text: Home
-      - about.qmd
+      - Appli1-Carto.qmd
+
 
 format:
   html:
     theme: cosmo
     css: styles.css
     toc: true
+
+
+
 
 
 

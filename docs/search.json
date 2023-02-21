@@ -1,0 +1,23 @@
+[
+  {
+    "objectID": "Appli1-Carto.html",
+    "href": "Appli1-Carto.html",
+    "title": "Appli1 : Cartographie des flux",
+    "section": "",
+    "text": "On utilise les données IPUMS du recensement de 2013. On s’intéresse aux migrations durée de vie (entre le lieu de naissance et le lieu de résidence)."
+  },
+  {
+    "objectID": "Appli1-Carto.html#fonds-de-carte",
+    "href": "Appli1-Carto.html#fonds-de-carte",
+    "title": "Appli1 : Cartographie des flux",
+    "section": "Fonds de carte",
+    "text": "Fonds de carte\nOn utilise le découpage de premier niveau du pays."
+  },
+  {
+    "objectID": "Appli1-Carto.html#matrice-de-migration-totale",
+    "href": "Appli1-Carto.html#matrice-de-migration-totale",
+    "title": "Appli1 : Cartographie des flux",
+    "section": "Matrice de migration totale",
+    "text": "Matrice de migration totale\nOn extrait la matrice de migration totale puis on calcule pour chaque paire de régions le solde et le volume des échanges.\n\n\n# A tibble: 6 × 12\n# Groups:   i [1]\n  i     j     Ni      Nj      Fij   Fji  FVij   FSij     Xi     Yi     Xj     Yj\n  <chr> <chr> <chr>   <chr> <dbl> <dbl> <dbl>  <dbl>  <dbl>  <dbl>  <dbl>  <dbl>\n1 BJ01  BJ02  Alibori Atak…  4720  2180  6900  -2540 3.23e5 1.27e6 1.75e5 1.20e6\n2 BJ01  BJ03  Alibori Atla…  2940   500  3440  -2440 3.23e5 1.27e6 2.47e5 7.38e5\n3 BJ01  BJ04  Alibori Borg… 17040  5460 22500 -11580 3.23e5 1.27e6 3.09e5 1.10e6\n4 BJ01  BJ05  Alibori Coll…  1950  2770  4720    820 3.23e5 1.27e6 2.45e5 9.09e5\n5 BJ01  BJ06  Alibori Kouf…   100   320   420    220 3.23e5 1.27e6 1.98e5 7.81e5\n6 BJ01  BJ07  Alibori Donga  1150  1910  3060    760 3.23e5 1.27e6 2.01e5 1.04e6\n\n\n\nVolume\nOn représente les volumes de flux dont la valeur est supérieure à la moyenne .\n\n\n\n\n\n\n\nSolde\nOn représente les soldes de flux dont la valeur est supérieure à la moyenne .\n\n\n\n\n\n\n\nFlux dominant\nOn détermine pour chaque unité spatiale son flux le plus important vers une autre unité spatiale. On considère qu’une unité est de type :\n\ndominante si son nombre si son nombre d’arrivée est supérieur à l’unité vers laquelle elle envoie son plus grand flux.\ndominée si son nombre d’arrivée est inférieur à l’unité vers laquelle elle envoie son plus grand flux.\nrelais si elle est à la fois dominée et dominante."
+  }
+]
