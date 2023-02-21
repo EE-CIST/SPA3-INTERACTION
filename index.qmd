@@ -2,3 +2,46 @@
 title: "Home"
 ---
 
+
+## Auteur·rice·s
+Claude Grasland , Fatoumata Coulibaly  , Mahamady Ouedraogo , Justin Dansou Pierre Pistre, Mouftaou Amadou Sanni, .Nicolas Lambert
+
+
+## Informations pratiques 
+
+Ce module est destiné à des étudiants de démographie, sociologie ou géographie de niveau licence , master ou doctorat. Son objectif est d’apprendre (1) à construire une matrice de migration à partir de données de recensement (2) la décrire de façon statistique et cartographie et enfin (3) modéliser les effets de masse et de distance à l’aide de modèles d’interaction spatiale de type gravitaire. Dans le temps disponible (2h de cours et 2h de TD) on se limitera à l’apprentissage des bases théoriques et on privilégiera l’analyse comparative d’exemples pris dans trois pays à deux niveaux de découpage différents.
+
+## Prérequis :
+
+- TYP2 : Données de recensement
+- STA1: Statistique univariée 
+- STA2 : Statistique bivariée
+- CART1 : Cartographie thématique
+- MOD1 : Régression multiple
+
+
+## Plan du cours 
+1.	Agrégation des données individuelles de recensement pour construire une matrice de flux origine-destination, éventuellement segmentée par sous-populations.
+2.	Analyse des marges de la matrice de flux (arrivées, départs, volume, solde, asymétrie)
+3.	Cartographie des flux (volume, solde, flux dominants)
+4.	Modélisation des flux depuis ou à partir d’un lieu (régression linéaire). Combinaison de l’effet de masse et de l’effet de distance. 
+5.	Modélisation de l’ensemble de la matrice de flux (modèle à simple ou double contrainte, régression de Poisson) et analyse des résidus (flux préférentiels et effets de barrière)
+
+## Bibliographie
+
+1.	**Bahoken, F., 2016,** L’approche cartographique de la décomposition des matrices de flux, *M@ ppemonde, 4(116)*, 19p.
+2.	**Bopda, A., & Grasland, C., 1994,** Migrations, régionalisations et régionalismes au Cameroun, *Espace Populations Sociétés, 12(1)*, 109-129.
+3.	**Dorigo, G., & Tobler, W.,1983,**  Push-pull migration laws, *Annals of the Association of American Geographers, 73(1)*, 1-17.
+4.	**Fotheringham A.S., O’Kelly M.E., 1989,** *Spatial interactions models : formulation and applications*, Kluwer Academic Press, Dordrecht/Boston/London, 1989
+5.	**Pumain, D., Saint-Julien, T., Dumas, E., & Mathian, H., 2001,** *Les interactions spatiales: flux et changements dans l'espace géographique.* Armand Colin.
+6.	**Sen A., Smith E.T. , 1995,** *Gravity models of spatial interaction behavior*, Springer Verlag.
+
+
+## Données
+-	GEO : Découpages administratifs de niveau 1 et 2 des pays de l’école d’été
+-	IPUMS : Extraction des RP du Bénin (2002, 2013), du Burkina Faso (2008) et du Mali (2009)
+
+## Packages R
+Knitr, mapsf, sf, dplyr, reshape2, tidyr, ttt(tribute to tobler) ?
+
+

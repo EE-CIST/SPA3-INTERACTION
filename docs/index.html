@@ -114,7 +114,19 @@ ul.task-list li input[type="checkbox"] {
 <!-- sidebar -->
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#auteurrices" id="toc-auteurrices" class="nav-link active" data-scroll-target="#auteurrices">Auteur·rice·s</a></li>
+  <li><a href="#informations-pratiques" id="toc-informations-pratiques" class="nav-link" data-scroll-target="#informations-pratiques">Informations pratiques</a></li>
+  <li><a href="#prérequis" id="toc-prérequis" class="nav-link" data-scroll-target="#prérequis">Prérequis :</a></li>
+  <li><a href="#plan-du-cours" id="toc-plan-du-cours" class="nav-link" data-scroll-target="#plan-du-cours">Plan du cours</a></li>
+  <li><a href="#bibliographie" id="toc-bibliographie" class="nav-link" data-scroll-target="#bibliographie">Bibliographie</a></li>
+  <li><a href="#données" id="toc-données" class="nav-link" data-scroll-target="#données">Données</a></li>
+  <li><a href="#packages-r" id="toc-packages-r" class="nav-link" data-scroll-target="#packages-r">Packages R</a></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -135,8 +147,58 @@ ul.task-list li input[type="checkbox"] {
 
 </header>
 
+<section id="auteurrices" class="level2">
+<h2 class="anchored" data-anchor-id="auteurrices">Auteur·rice·s</h2>
+<p>Claude Grasland , Fatoumata Coulibaly , Mahamady Ouedraogo , Justin Dansou Pierre Pistre, Mouftaou Amadou Sanni, .Nicolas Lambert</p>
+</section>
+<section id="informations-pratiques" class="level2">
+<h2 class="anchored" data-anchor-id="informations-pratiques">Informations pratiques</h2>
+<p>Ce module est destiné à des étudiants de démographie, sociologie ou géographie de niveau licence , master ou doctorat. Son objectif est d’apprendre (1) à construire une matrice de migration à partir de données de recensement (2) la décrire de façon statistique et cartographie et enfin (3) modéliser les effets de masse et de distance à l’aide de modèles d’interaction spatiale de type gravitaire. Dans le temps disponible (2h de cours et 2h de TD) on se limitera à l’apprentissage des bases théoriques et on privilégiera l’analyse comparative d’exemples pris dans trois pays à deux niveaux de découpage différents.</p>
+</section>
+<section id="prérequis" class="level2">
+<h2 class="anchored" data-anchor-id="prérequis">Prérequis :</h2>
+<ul>
+<li>TYP2 : Données de recensement</li>
+<li>STA1: Statistique univariée</li>
+<li>STA2 : Statistique bivariée</li>
+<li>CART1 : Cartographie thématique</li>
+<li>MOD1 : Régression multiple</li>
+</ul>
+</section>
+<section id="plan-du-cours" class="level2">
+<h2 class="anchored" data-anchor-id="plan-du-cours">Plan du cours</h2>
+<ol type="1">
+<li>Agrégation des données individuelles de recensement pour construire une matrice de flux origine-destination, éventuellement segmentée par sous-populations.</li>
+<li>Analyse des marges de la matrice de flux (arrivées, départs, volume, solde, asymétrie)</li>
+<li>Cartographie des flux (volume, solde, flux dominants)</li>
+<li>Modélisation des flux depuis ou à partir d’un lieu (régression linéaire). Combinaison de l’effet de masse et de l’effet de distance.</li>
+<li>Modélisation de l’ensemble de la matrice de flux (modèle à simple ou double contrainte, régression de Poisson) et analyse des résidus (flux préférentiels et effets de barrière)</li>
+</ol>
+</section>
+<section id="bibliographie" class="level2">
+<h2 class="anchored" data-anchor-id="bibliographie">Bibliographie</h2>
+<ol type="1">
+<li><strong>Bahoken, F., 2016,</strong> L’approche cartographique de la décomposition des matrices de flux, <em>M@ ppemonde, 4(116)</em>, 19p.</li>
+<li><strong>Bopda, A., &amp; Grasland, C., 1994,</strong> Migrations, régionalisations et régionalismes au Cameroun, <em>Espace Populations Sociétés, 12(1)</em>, 109-129.</li>
+<li><strong>Dorigo, G., &amp; Tobler, W.,1983,</strong> Push-pull migration laws, <em>Annals of the Association of American Geographers, 73(1)</em>, 1-17.</li>
+<li><strong>Fotheringham A.S., O’Kelly M.E., 1989,</strong> <em>Spatial interactions models : formulation and applications</em>, Kluwer Academic Press, Dordrecht/Boston/London, 1989</li>
+<li><strong>Pumain, D., Saint-Julien, T., Dumas, E., &amp; Mathian, H., 2001,</strong> <em>Les interactions spatiales: flux et changements dans l’espace géographique.</em> Armand Colin.</li>
+<li><strong>Sen A., Smith E.T. , 1995,</strong> <em>Gravity models of spatial interaction behavior</em>, Springer Verlag.</li>
+</ol>
+</section>
+<section id="données" class="level2">
+<h2 class="anchored" data-anchor-id="données">Données</h2>
+<ul>
+<li>GEO : Découpages administratifs de niveau 1 et 2 des pays de l’école d’été</li>
+<li>IPUMS : Extraction des RP du Bénin (2002, 2013), du Burkina Faso (2008) et du Mali (2009)</li>
+</ul>
+</section>
+<section id="packages-r" class="level2">
+<h2 class="anchored" data-anchor-id="packages-r">Packages R</h2>
+<p>Knitr, mapsf, sf, dplyr, reshape2, tidyr, ttt(tribute to tobler) ?</p>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
