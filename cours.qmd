@@ -730,3 +730,706 @@ kable(int5, digits=1, caption = "Département de naissance des individus (en %)"
 ```
 
 -   **Commentaire** : 
+
+
+
+
+## CARTOGRAPHIE DES FLUX
+
+La question sera abordée dans les exercices d'application car elle soulève non seulement des problèmes de démographie mais aussi des problèmes proprement cartographiques. On se limitera ici à une présentation succinte des trois types de cartes proposées pour visualiser les interactions entre départements ou régions. 
+
+### Exemple du Bénin
+
+On extrait la matrice de migration totale puis on calcule pour chaque paire de régions le solde et le volume des échanges.
+
+```{r}
+sel<-don %>% filter(Pays=="Benin", YEAR==2013) %>%
+             filter(substr(COD_NAISSANCE_Niv1,1,2)=="BJ")
+
+map<-readRDS("GEO/BEN/BEN1_map_OK2.RDS")
+map<-st_transform(map,3857)
+map<-map %>%  select(code=ADMIN1PCOD,
+                    nom = NAME_1)
+
+tab<-st_drop_geometry(map)
+
+miglong<-sel %>% mutate(i = COD_NAISSANCE_Niv1,
+                    j = COD_RESIDENCE_Niv1) %>%
+            filter(i !=j,
+                   i !="Fore") %>%
+            group_by(i,j) %>%
+            summarise(Fij=sum(POP_Total_IPUMS))
+#kable(head(miglong))
+
+
+
+
+miglong2<-miglong %>% select(i=j,j=i,Fji=Fij)
+miglong<-miglong %>% left_join(miglong2)
+miglong$FVij<-miglong$Fij+miglong$Fji
+miglong$FSij<-miglong$Fji-miglong$Fij
+
+map_ctr<-st_centroid(map)
+ctr<-data.frame(st_coordinates(map_ctr))
+ctr$i<-map_ctr$code
+ctr$Ni<-map_ctr$nom
+names(ctr)<-c("Xi","Yi","i","Ni")
+miglong<-left_join(miglong,ctr)
+names(ctr)<-c("Xj","Yj","j","Nj")
+miglong<-left_join(miglong,ctr) %>% select(i,j,Ni,Nj,Fij,Fji,FVij,FSij,Xi,Yi,Xj,Yj)
+
+
+head(miglong)
+
+```
+
+
+#### Volume
+
+On représente les volumes de flux  dont la valeur est supérieure à la moyenne .
+
+```{r}
+
+
+#choix du seuil
+sel<-miglong
+#summary(sel$FVij)
+seuil <- mean(sel$FVij)
+#seuil=5000
+sel <- sel[sel$FVij > seuil,]
+
+#choix de l'épaisseur maximale des flux
+maxsize <- 10
+sel$size <- maxsize*sel$FVij/max(sel$FVij)
+
+#retouche des coordonnées pour éloigner les flèches des centres
+coeff <- 0.0
+sel$XXi <- sel$Xi+coeff*(sel$Xj-sel$Xi)
+sel$XXj <- sel$Xj-coeff*(sel$Xj-sel$Xi)
+sel$YYi <- sel$Yi+coeff*(sel$Yj-sel$Yi)
+sel$YYj <- sel$Yj-coeff*(sel$Yj-sel$Yi)
+
+
+## Volume par région
+
+vol<-miglong %>% group_by(i) %>% summarise(vol =sum(Fij)+sum(Fji)) %>% rename(code=i)
+
+
+map_ctr<-left_join(map_ctr,vol)
+
+ 
+#cartographie d'une ou plusieurs couches de carte (facultatif)
+#pdf("benin_vol.pdf",width = 3,height=5)
+library(mapsf)
+mf_theme("darkula")
+mf_shadow(map)
+mf_map(map, col = "#4e4f4f", border = "#808080", add= TRUE)
+
+
+
+#plot(map$geometry)
+#cartographie des flux
+segments(sel$XXi, sel$YYi, sel$XXj, sel$YYj, col="lightyellow", lwd=sel$size)
+
+# Volume
+mf_map(map_ctr,type="prop",var = "vol",col="orange",inches = 0.07,leg_title = "Volume",leg_pos = "topleft",lwd = 0.2,leg_val_cex = 0.4)
+#ajout des codes (facultatif)
+mf_label(map_ctr,var = "ADMIN_NAME",col="white",cex = 0.4)
+
+mf_layout(title = "Volume des migrations",
+          credits = "IPUMS International / EE CIST 2023", arrow = FALSE, scale = FALSE)
+#dev.off()
+```
+
+#### Solde
+
+On représente les soldes de flux dont la valeur est supérieure à la moyenne .
+
+```{r}
+
+
+#choix du seuil
+sel<-miglong %>% filter(FSij >0)
+#summary(sel$FSij)
+seuil <- mean(sel$FSij)
+#seuil=2000
+sel <- sel[sel$FSij > seuil,]
+
+#choix de l'épaisseur maximale des flux
+maxsize <- 7
+sel$size <- maxsize*sel$FSij/max(sel$FSij)
+
+#retouche des coordonnées pour éloigner les flèches des centres
+coeff <- 0.10
+sel$XXi <- sel$Xi+coeff*(sel$Xj-sel$Xi)
+sel$XXj <- sel$Xj-coeff*(sel$Xj-sel$Xi)
+sel$YYi <- sel$Yi+coeff*(sel$Yj-sel$Yi)
+sel$YYj <- sel$Yj-coeff*(sel$Yj-sel$Yi)
+
+
+## Solde par région
+
+sol<-miglong %>% group_by(i) %>% 
+  summarise(sol =sum(Fji)-sum(Fij)) %>% 
+  rename(code=i) %>%
+  mutate(sol_abs = abs(sol), sol_sign=as.factor(sol>0))
+levels(sol$sol_sign)<-c("Négatif","Positif")
+map_ctr<-left_join(map_ctr,sol)
+
+ 
+#cartographie d'une ou plusieurs couches de carte (facultatif)
+#pdf("benin_sol.pdf",width = 3,height=5)
+library(mapsf)
+mf_theme("darkula")
+mf_shadow(map)
+mf_map(map, col = "#4e4f4f", border = "#808080", add= TRUE)
+
+
+#cartographie des flux
+arrows(sel$XXj, sel$YYj, sel$XXi, sel$YYi, col="lightyellow", lwd=sel$size,length = 0.03)
+
+# Volume
+mf_map(map_ctr,type="prop_typo",var=c("sol_abs","sol_sign"),inches = 0.1,leg_pos = c("topleft","left"),
+       leg_title = ("solde"))
+
+
+
+#ajout des codes (facultatif)
+mf_label(map_ctr,var = "ADMIN_NAME",col="white",cex = 0.4)
+
+mf_layout(title = "Solde des migrations",
+          credits = "IPUMS International / EE CIST 2023", arrow = FALSE, scale = FALSE)
+#dev.off()
+```
+
+
+#### Flux dominant
+
+On détermine pour chaque unité spatiale son flux le plus important vers une autre unité spatiale. On considère qu'une unité est de type : 
+
+- **dominante** si son nombre si son nombre d'arrivée est supérieur à l'unité vers laquelle elle envoie son plus grand flux.
+- **dominée** si son nombre d'arrivée est inférieur à l'unité vers laquelle elle envoie son plus grand flux.
+- **relais** si elle est à la fois dominée et dominante.
+
+```{r}
+# selection des flux les plus importants
+dom<-miglong %>% filter(i !=j) %>% # Elimine les populations immobiles
+                 group_by(i) %>% # Regroupe par lieu d'origine
+                 filter(FVij == max(FVij,na.rm=T)) %>% # sélectionne le plus grand flux
+                 select(i,j,Xi,Yi,Xj,Yj,FVij) # ne conserve que les colonnes utiles
+# calcul du total des arrivées 
+TOT <- miglong %>% group_by(j) %>%
+                  summarize(TOTj = sum(FVij,na.rm=T)) %>%
+                  select(j,TOTj)
+
+# Effectue la jointure en j
+dom <- dom %>% left_join(TOT)
+
+# Effectue la jointure en i
+names(TOT)<-c("i","TOTi")
+dom <- dom %>% left_join(TOT)
+
+# Vérifie que ARRi < ARRj
+dom <- dom %>% filter(TOTi < TOTj)
+
+# Donne un type à chaque région
+TOT$type <- "relais"
+TOT$type[!(TOT$i %in% dom$j)]<-"dominé"
+TOT$type[!(TOT$i %in% dom$i)]<-"dominant"
+
+
+# relie le type à la carte
+TOT<-TOT %>% select(code=i,TOT=TOTi, type)
+map<-map%>% left_join(TOT)
+
+# Cartographie le résultat
+
+mf_theme("darkula")
+mf_shadow(map)
+mf_map(map, col = "#4e4f4f", border = "#808080", add= TRUE)
+
+#cartographie des liens de domination
+maxsize=7
+dom$size <- maxsize*dom$FVij/max(dom$FVij,na.rm=T)
+segments(dom$Xi, dom$Yi, dom$Xj, dom$Yj, col="lightyellow", lwd=dom$size,length = 0.03)
+
+
+# Ajoute le poids des noeuds
+mf_map(map, 
+       type="prop_typo",
+       var=c("TOT","type"),
+       inches=0.1,
+       pal=c("red","lightgreen","orange"),
+       leg_title = c("Taille","Type"),
+       leg_pos = c("topleft","left"))
+
+mf_layout(title = "Flux dominants",
+          credits = "IPUMS International / EE CIST 2023", arrow = FALSE, scale = FALSE)
+
+
+```
+
+
+### Exemple du Burkina Faso
+
+```{r}
+sel<-don %>% filter(Pays=="Burkina Faso", YEAR==2006) %>%
+             filter(substr(COD_NAISSANCE_Niv1,1,2)=="BF")
+
+map<-readRDS("GEO/BFA/BFA1_map_OK.RDS")
+map<-st_transform(map,3857)
+map<-map %>%  select(code=ADMIN1PCOD,
+                    nom = NAME_1)
+
+tab<-st_drop_geometry(map)
+
+miglong<-sel %>% mutate(i = COD_NAISSANCE_Niv1,
+                    j = COD_RESIDENCE_Niv1) %>%
+            filter(i !=j,
+                   i !="Fore") %>%
+            group_by(i,j) %>%
+            summarise(Fij=sum(POP_Total_IPUMS))
+#kable(head(miglong))
+
+
+
+
+miglong2<-miglong %>% select(i=j,j=i,Fji=Fij)
+miglong<-miglong %>% left_join(miglong2)
+miglong$FVij<-miglong$Fij+miglong$Fji
+miglong$FSij<-miglong$Fji-miglong$Fij
+
+map_ctr<-st_centroid(map)
+ctr<-data.frame(st_coordinates(map_ctr))
+ctr$i<-map_ctr$code
+ctr$Ni<-map_ctr$nom
+names(ctr)<-c("Xi","Yi","i","Ni")
+miglong<-left_join(miglong,ctr)
+names(ctr)<-c("Xj","Yj","j","Nj")
+miglong<-left_join(miglong,ctr) %>% select(i,j,Ni,Nj,Fij,Fji,FVij,FSij,Xi,Yi,Xj,Yj)
+
+
+head(miglong)
+
+```
+
+
+#### Volume
+
+On représente les volumes de flux  dont la valeur est supérieure à la moyenne .
+
+```{r}
+
+
+#choix du seuil
+sel<-miglong
+#summary(sel$FVij)
+seuil <- mean(sel$FVij)
+#seuil=5000
+sel <- sel[sel$FVij > seuil,]
+
+#choix de l'épaisseur maximale des flux
+maxsize <- 10
+sel$size <- maxsize*sel$FVij/max(sel$FVij)
+
+#retouche des coordonnées pour éloigner les flèches des centres
+coeff <- 0.0
+sel$XXi <- sel$Xi+coeff*(sel$Xj-sel$Xi)
+sel$XXj <- sel$Xj-coeff*(sel$Xj-sel$Xi)
+sel$YYi <- sel$Yi+coeff*(sel$Yj-sel$Yi)
+sel$YYj <- sel$Yj-coeff*(sel$Yj-sel$Yi)
+
+
+## Volume par région
+
+vol<-miglong %>% group_by(i) %>% summarise(vol =sum(Fij)+sum(Fji)) %>% rename(code=i)
+
+
+map_ctr<-left_join(map_ctr,vol)
+
+ 
+#cartographie d'une ou plusieurs couches de carte (facultatif)
+#pdf("benin_vol.pdf",width = 3,height=5)
+library(mapsf)
+mf_theme("darkula")
+mf_shadow(map)
+mf_map(map, col = "#4e4f4f", border = "#808080", add= TRUE)
+
+
+
+#plot(map$geometry)
+#cartographie des flux
+segments(sel$XXi, sel$YYi, sel$XXj, sel$YYj, col="lightyellow", lwd=sel$size)
+
+# Volume
+mf_map(map_ctr,type="prop",var = "vol",col="orange",inches = 0.07,leg_title = "Volume",leg_pos = "topleft",lwd = 0.2,leg_val_cex = 0.4)
+#ajout des codes (facultatif)
+mf_label(map_ctr,var = "ADMIN_NAME",col="white",cex = 0.4)
+
+mf_layout(title = "Volume des migrations",
+          credits = "IPUMS International / EE CIST 2023", arrow = FALSE, scale = FALSE)
+#dev.off()
+```
+
+#### Solde
+
+On représente les soldes de flux dont la valeur est supérieure à la moyenne .
+
+```{r}
+
+
+#choix du seuil
+sel<-miglong %>% filter(FSij >0)
+#summary(sel$FSij)
+seuil <- mean(sel$FSij)
+#seuil=2000
+sel <- sel[sel$FSij > seuil,]
+
+#choix de l'épaisseur maximale des flux
+maxsize <- 7
+sel$size <- maxsize*sel$FSij/max(sel$FSij)
+
+#retouche des coordonnées pour éloigner les flèches des centres
+coeff <- 0.10
+sel$XXi <- sel$Xi+coeff*(sel$Xj-sel$Xi)
+sel$XXj <- sel$Xj-coeff*(sel$Xj-sel$Xi)
+sel$YYi <- sel$Yi+coeff*(sel$Yj-sel$Yi)
+sel$YYj <- sel$Yj-coeff*(sel$Yj-sel$Yi)
+
+
+## Solde par région
+
+sol<-miglong %>% group_by(i) %>% 
+  summarise(sol =sum(Fji)-sum(Fij)) %>% 
+  rename(code=i) %>%
+  mutate(sol_abs = abs(sol), sol_sign=as.factor(sol>0))
+levels(sol$sol_sign)<-c("Négatif","Positif")
+map_ctr<-left_join(map_ctr,sol)
+
+ 
+#cartographie d'une ou plusieurs couches de carte (facultatif)
+#pdf("benin_sol.pdf",width = 3,height=5)
+library(mapsf)
+mf_theme("darkula")
+mf_shadow(map)
+mf_map(map, col = "#4e4f4f", border = "#808080", add= TRUE)
+
+
+#cartographie des flux
+arrows(sel$XXj, sel$YYj, sel$XXi, sel$YYi, col="lightyellow", lwd=sel$size,length = 0.03)
+
+# Volume
+mf_map(map_ctr,type="prop_typo",var=c("sol_abs","sol_sign"),inches = 0.1,leg_pos = c("topleft","left"),
+       leg_title = ("solde"))
+
+
+
+#ajout des codes (facultatif)
+mf_label(map_ctr,var = "ADMIN_NAME",col="white",cex = 0.4)
+
+mf_layout(title = "Solde des migrations",
+          credits = "IPUMS International / EE CIST 2023", arrow = FALSE, scale = FALSE)
+#dev.off()
+```
+
+
+#### Flux dominant
+
+On détermine pour chaque unité spatiale son flux le plus important vers une autre unité spatiale. On considère qu'une unité est de type : 
+
+- **dominante** si son nombre si son nombre d'arrivée est supérieur à l'unité vers laquelle elle envoie son plus grand flux.
+- **dominée** si son nombre d'arrivée est inférieur à l'unité vers laquelle elle envoie son plus grand flux.
+- **relais** si elle est à la fois dominée et dominante.
+
+```{r}
+# selection des flux les plus importants
+dom<-miglong %>% filter(i !=j) %>% # Elimine les populations immobiles
+                 group_by(i) %>% # Regroupe par lieu d'origine
+                 filter(FVij == max(FVij,na.rm=T)) %>% # sélectionne le plus grand flux
+                 select(i,j,Xi,Yi,Xj,Yj,FVij) # ne conserve que les colonnes utiles
+# calcul du total des arrivées 
+TOT <- miglong %>% group_by(j) %>%
+                  summarize(TOTj = sum(FVij,na.rm=T)) %>%
+                  select(j,TOTj)
+
+# Effectue la jointure en j
+dom <- dom %>% left_join(TOT)
+
+# Effectue la jointure en i
+names(TOT)<-c("i","TOTi")
+dom <- dom %>% left_join(TOT)
+
+# Vérifie que ARRi < ARRj
+dom <- dom %>% filter(TOTi < TOTj)
+
+# Donne un type à chaque région
+TOT$type <- "relais"
+TOT$type[!(TOT$i %in% dom$j)]<-"dominé"
+TOT$type[!(TOT$i %in% dom$i)]<-"dominant"
+
+
+# relie le type à la carte
+TOT<-TOT %>% select(code=i,TOT=TOTi, type)
+map<-map%>% left_join(TOT)
+
+# Cartographie le résultat
+
+mf_theme("darkula")
+mf_shadow(map)
+mf_map(map, col = "#4e4f4f", border = "#808080", add= TRUE)
+
+#cartographie des liens de domination
+maxsize=7
+dom$size <- maxsize*dom$FVij/max(dom$FVij,na.rm=T)
+segments(dom$Xi, dom$Yi, dom$Xj, dom$Yj, col="lightyellow", lwd=dom$size,length = 0.03)
+
+
+# Ajoute le poids des noeuds
+mf_map(map, 
+       type="prop_typo",
+       var=c("TOT","type"),
+       inches=0.1,
+       pal=c("red","lightgreen","orange"),
+       leg_title = c("Taille","Type"),
+       leg_pos = c("topleft","left"))
+
+mf_layout(title = "Flux dominants",
+          credits = "IPUMS International / EE CIST 2023", arrow = FALSE, scale = FALSE)
+
+
+```
+
+
+### Exemple du Mali
+
+
+```{r}
+sel<-don %>% filter(Pays=="Mali", YEAR==2009,
+                    substr(COD_NAISSANCE_Niv1,1,2)=="ML",
+                    COD_NAISSANCE_Niv1 !="ML10",
+                    COD_RESIDENCE_Niv1 !="ML10"
+                    )
+
+map<-readRDS("GEO/MLI/MLI1_map_OK.RDS")
+map<-st_transform(map,3857)
+map<-map %>%  select(code=ADMIN1PCOD,
+                    nom = NAME_1)
+
+tab<-st_drop_geometry(map)
+
+
+miglong<-sel %>% mutate(i = COD_NAISSANCE_Niv1,
+                    j = COD_RESIDENCE_Niv1) %>%
+            filter(i !=j,
+                   i !="Fore") %>%
+            group_by(i,j) %>%
+            summarise(Fij=sum(POP_Total_IPUMS))
+#kable(head(miglong))
+
+
+
+
+miglong2<-miglong %>% select(i=j,j=i,Fji=Fij)
+miglong<-miglong %>% left_join(miglong2)
+miglong$FVij<-miglong$Fij+miglong$Fji
+miglong$FSij<-miglong$Fji-miglong$Fij
+
+map_ctr<-st_centroid(map)
+ctr<-data.frame(st_coordinates(map_ctr))
+ctr$i<-map_ctr$code
+ctr$Ni<-map_ctr$nom
+names(ctr)<-c("Xi","Yi","i","Ni")
+miglong<-left_join(miglong,ctr)
+names(ctr)<-c("Xj","Yj","j","Nj")
+miglong<-left_join(miglong,ctr) %>% select(i,j,Ni,Nj,Fij,Fji,FVij,FSij,Xi,Yi,Xj,Yj)
+
+
+head(miglong)
+
+```
+
+
+#### Volume
+
+On représente les volumes de flux  dont la valeur est supérieure à la moyenne .
+
+```{r}
+
+
+#choix du seuil
+sel<-miglong
+#summary(sel$FVij)
+seuil <- mean(sel$FVij)
+#seuil=5000
+sel <- sel[sel$FVij > seuil,]
+
+#choix de l'épaisseur maximale des flux
+maxsize <- 10
+sel$size <- maxsize*sel$FVij/max(sel$FVij)
+
+#retouche des coordonnées pour éloigner les flèches des centres
+coeff <- 0.0
+sel$XXi <- sel$Xi+coeff*(sel$Xj-sel$Xi)
+sel$XXj <- sel$Xj-coeff*(sel$Xj-sel$Xi)
+sel$YYi <- sel$Yi+coeff*(sel$Yj-sel$Yi)
+sel$YYj <- sel$Yj-coeff*(sel$Yj-sel$Yi)
+
+
+## Volume par région
+
+vol<-miglong %>% group_by(i) %>% summarise(vol =sum(Fij)+sum(Fji)) %>% rename(code=i)
+
+
+map_ctr<-left_join(map_ctr,vol)
+
+ 
+#cartographie d'une ou plusieurs couches de carte (facultatif)
+#pdf("benin_vol.pdf",width = 3,height=5)
+library(mapsf)
+mf_theme("darkula")
+mf_shadow(map)
+mf_map(map, col = "#4e4f4f", border = "#808080", add= TRUE)
+
+
+
+#plot(map$geometry)
+#cartographie des flux
+segments(sel$XXi, sel$YYi, sel$XXj, sel$YYj, col="lightyellow", lwd=sel$size)
+
+# Volume
+mf_map(map_ctr,type="prop",var = "vol",col="orange",inches = 0.07,leg_title = "Volume",leg_pos = "topleft",lwd = 0.2,leg_val_cex = 0.4)
+#ajout des codes (facultatif)
+mf_label(map_ctr,var = "ADMIN_NAME",col="white",cex = 0.4)
+
+mf_layout(title = "Volume des migrations",
+          credits = "IPUMS International / EE CIST 2023", arrow = FALSE, scale = FALSE)
+#dev.off()
+```
+
+#### Solde
+
+On représente les soldes de flux dont la valeur est supérieure à la moyenne .
+
+```{r}
+
+
+#choix du seuil
+sel<-miglong %>% filter(FSij >0)
+#summary(sel$FSij)
+seuil <- mean(sel$FSij)
+#seuil=2000
+sel <- sel[sel$FSij > seuil,]
+
+#choix de l'épaisseur maximale des flux
+maxsize <- 7
+sel$size <- maxsize*sel$FSij/max(sel$FSij)
+
+#retouche des coordonnées pour éloigner les flèches des centres
+coeff <- 0.10
+sel$XXi <- sel$Xi+coeff*(sel$Xj-sel$Xi)
+sel$XXj <- sel$Xj-coeff*(sel$Xj-sel$Xi)
+sel$YYi <- sel$Yi+coeff*(sel$Yj-sel$Yi)
+sel$YYj <- sel$Yj-coeff*(sel$Yj-sel$Yi)
+
+
+## Solde par région
+
+sol<-miglong %>% group_by(i) %>% 
+  summarise(sol =sum(Fji)-sum(Fij)) %>% 
+  rename(code=i) %>%
+  mutate(sol_abs = abs(sol), sol_sign=as.factor(sol>0))
+levels(sol$sol_sign)<-c("Négatif","Positif")
+map_ctr<-left_join(map_ctr,sol)
+
+ 
+#cartographie d'une ou plusieurs couches de carte (facultatif)
+#pdf("benin_sol.pdf",width = 3,height=5)
+library(mapsf)
+mf_theme("darkula")
+mf_shadow(map)
+mf_map(map, col = "#4e4f4f", border = "#808080", add= TRUE)
+
+
+#cartographie des flux
+arrows(sel$XXj, sel$YYj, sel$XXi, sel$YYi, col="lightyellow", lwd=sel$size,length = 0.03)
+
+# Volume
+mf_map(map_ctr,type="prop_typo",var=c("sol_abs","sol_sign"),inches = 0.1,leg_pos = c("topleft","left"),
+       leg_title = ("solde"))
+
+
+
+#ajout des codes (facultatif)
+mf_label(map_ctr,var = "ADMIN_NAME",col="white",cex = 0.4)
+
+mf_layout(title = "Solde des migrations",
+          credits = "IPUMS International / EE CIST 2023", arrow = FALSE, scale = FALSE)
+#dev.off()
+```
+
+
+#### Flux dominant
+
+On détermine pour chaque unité spatiale son flux le plus important vers une autre unité spatiale. On considère qu'une unité est de type : 
+
+- **dominante** si son nombre si son nombre d'arrivée est supérieur à l'unité vers laquelle elle envoie son plus grand flux.
+- **dominée** si son nombre d'arrivée est inférieur à l'unité vers laquelle elle envoie son plus grand flux.
+- **relais** si elle est à la fois dominée et dominante.
+
+```{r}
+# selection des flux les plus importants
+dom<-miglong %>% filter(i !=j) %>% # Elimine les populations immobiles
+                 group_by(i) %>% # Regroupe par lieu d'origine
+                 filter(FVij == max(FVij,na.rm=T)) %>% # sélectionne le plus grand flux
+                 select(i,j,Xi,Yi,Xj,Yj,FVij) # ne conserve que les colonnes utiles
+# calcul du total des arrivées 
+TOT <- miglong %>% group_by(j) %>%
+                  summarize(TOTj = sum(FVij,na.rm=T)) %>%
+                  select(j,TOTj)
+
+# Effectue la jointure en j
+dom <- dom %>% left_join(TOT)
+
+# Effectue la jointure en i
+names(TOT)<-c("i","TOTi")
+dom <- dom %>% left_join(TOT)
+
+# Vérifie que ARRi < ARRj
+dom <- dom %>% filter(TOTi < TOTj)
+
+# Donne un type à chaque région
+TOT$type <- "relais"
+TOT$type[!(TOT$i %in% dom$j)]<-"dominé"
+TOT$type[!(TOT$i %in% dom$i)]<-"dominant"
+
+
+# relie le type à la carte
+TOT<-TOT %>% select(code=i,TOT=TOTi, type)
+map<-map%>% left_join(TOT)
+
+# Cartographie le résultat
+
+mf_theme("darkula")
+mf_shadow(map)
+mf_map(map, col = "#4e4f4f", border = "#808080", add= TRUE)
+
+#cartographie des liens de domination
+maxsize=7
+dom$size <- maxsize*dom$FVij/max(dom$FVij,na.rm=T)
+segments(dom$Xi, dom$Yi, dom$Xj, dom$Yj, col="lightyellow", lwd=dom$size,length = 0.03)
+
+
+# Ajoute le poids des noeuds
+mf_map(map, 
+       type="prop_typo",
+       var=c("TOT","type"),
+       inches=0.1,
+       pal=c("red","lightgreen","orange"),
+       leg_title = c("Taille","Type"),
+       leg_pos = c("topleft","left"))
+
+mf_layout(title = "Flux dominants",
+          credits = "IPUMS International / EE CIST 2023", arrow = FALSE, scale = FALSE)
+
+
+```
