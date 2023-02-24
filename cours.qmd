@@ -1,0 +1,732 @@
+---
+title: "Cours "
+author: "Grasland C."
+format: html
+embed-resources: true
+---
+
+```{r, echo=FALSE, warning = F, error=FALSE}
+library(knitr, quiet=T)
+library(data.table)
+library(readxl)
+library(dplyr, warn.conflicts = FALSE)
+options(dplyr.summarise.inform = FALSE)
+library(sf,quietly = T)
+library(mapsf,quiet=T)
+library(RColorBrewer)
+library(forcats)
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+
+## Introduction
+
+
+## DONNEES
+
+### Migrations dure de vie
+
+Nous proposons dans ce chapitre une analyse des *migrations durée de vie* c'est-à-dire des différences entre le lieu de naissance et le lieu de résidence déclarés au moment du recensement. Il s'agit évidemment d'une mesure assez grossière puisqu'elle conduit à ignorer toutes les étapes suivies par le migrant au cours de sa vie et dépend étroitement de l'âge de l'individu. La mesure peut de plus s'avérer trompeuse puisqu'une personne née en un lieu A peut avoir vécu dans les lieux B, C, D avant de revenir en A au moment du recensement qui concluera à l'absence de mobilité...
+
+![Exemple théorique de parcours migratoire](img/mobil001.png){heigth="50%"}
+
+Dans l'exemple théorique présenté ci-dessus, l'individu concerné qui est né dans la commune de Malanville (département Alibori) sera réputé avoir effectué une migration durée de vie lors des recensements de 1979 où il est recensé à Parakou (département de Borgou), en 1992 où il est recensé à Abomey-Calavi (département Atlantique) et en 2002 où iest recensé à Grand-Popo (département du Mono). En revanche il ne sera pas considéré comme migrant en 2013 puisqu'il réside à nouveau dans la commune et le département de son lieu de naissance.
+
+### IPUMS international
+
+Le site IPUMS permet d'analyser en détail la disponibilité des variables utiles à l'analyse ainsi que leurs éventuels changements au cours du temps. Il est donc recommandé d'utiliser les métadonnées nombreuses offertes par IPUMS avant de se lancer dans ses propres analyses
+
+#### Département de naissance (BPLBJ1)
+
+La page de description de [la variable BPLBJ1](https://international.ipums.org/international-action/variables/BPLBJ1#codes_section) nous fournit d'abord une description de sa disponibilité et des effectifs correspondant à chacune des dates de recensement.
+
+![Disponibilité de la variable département de naissance](img/mobil002.png)
+
+Comme on peut le voir dans l'image ci-dessous, il n'y a pas de difficultés particulières concernant les mouvements internes au pays mais il y a une absence d'information sur les personnes nées à l'étranger lors des recensements de 1979 et 1992. Ils sont rangés à cette date dans la catégorie inconnue dont on voit en 2002 qu'elle ne concerne pas forcément les étrangers.
+
+Les onglets suivants précisent la définition de la variable en anglais (*BPLBJ1 indicates the person's department of birth within Benin.*) et indiquent le degré de comparabilité entre les dates (*There have not been any changes in boundaries for all sample years in BPLBJ1 and is comparable across all available sample years.*). Ils fournissent ensuite un document précisant les questions exactes qui ont été posées dans le questionnaire de recnsement et les instructions données aux agents recenseurs.
+
+![Questionnaire de la variable département de naissance au RP 1979](img/mobil003.png) Mieux encore, on peut accéder à un fac similé du document papier de recensemet qui a permis d'établir les statistiques de lieu de résidence (en vert), de lieu de naissance (en rouge) et de lieu de résidence antérieure (en bleu)
+
+![Formulaire ménage du RP1979 au Bénin - Recto](img/mobilrp1979_recto.png) ![Formulaire ménage du RP 1979 au Bénin - Verso](img/mobilrp1979_verso.png)
+
+#### Commune de naissance (BPLBJ2)
+
+Cette variable permet une localisation plus précise des lieux de naissance mais elle comporte un certain degré d'incertitude puisque pour certains individus on ne connaît que le département de naissance mais pas la commune à l'intérieur de ceux-ci. Ces cas de localisation du leiu de naissance uniquement au niveau du département ne se présentent qu'en 2002 et 2013 et concernent un effectif limité. Dans le cas des recensements de 1979 et 1992, ils sont comptabilisés dans la catégorie "Inconnu" dont nous avons vu précédemment qu'elle concernait aussi les personnes nées à l'étranger.
+
+![Questionnaire de la variable département de naissance au RP 1979](img/mobil004.png)
+
+Au final, et dans la perspective comparative que nous suivons, il semble préférable de travailler sur un échantillon limité aux individus dont on connait la commune de naissance en éliminant ceux qui sont nés à l'étranger.
+
+### Choix des indicateurs
+
+Nous avons procédé à une extraction des données IPUMS International pour trois pays à trois dates de recensement :
+
+
+```{r}
+don<-readRDS("IPUMS/MIG.RDS") %>% 
+  filter(YEAR !="2002",
+  Pays != "Senegal")
+```
+
+- Bénin, RP 2013
+- Burkina Faso, RP 2006
+- Mali, RP 2009
+
+Afin de préserver la confidentialité des données, nous avons agrégé le tableau initial des individus (échantillon de 10%) por obtenir les effectifs de personnes ayant migré d'un département à un autre ou d'une région à une autre. Mais nous avons conservé la possibilité d'analyser séparément des sous populations :
+
+- Hommes
+- Femmes
+- 0-14 ans
+- 15-29 ans
+- 30-44 ans
+- 45-59 ans
+- 60-74 ans
+- 75 ans et +
+
+
+Le fichier de données se présente donc comme suit :
+
+
+
+```{r}
+kable(head(don[3:6,1:15]), caption="Extrait du fichier de données")
+```
+
+- **Commentaire** : la première ligne indique les personnes nées dans la commune de Banikoara et qui y résident en 2013. Il s'agit donc a priori de populations "immobiles" même si on ne peut pas exclure qu'elles aient effectués des déplacements. La seconde ligne indique des personnes nées dans la commune de Gogounou qui résident dans la commune de Banikoara en 2013. Cela concerne 280 habitants qui se répartissent en 80 hommes et 200 femmes ou bien en 100 individus de 0-14 ans, 110 individus de 15-29 ans, 60 individus de 30-44 ans et 10 individus de 60-74 ans. Le fait que tous les nombres soient arrondis à la dizaine (finissent pas 0) s'explique par le fait que nous avons utilisé un échantillon du recensement à 10% et que nous avons multiplié par 10 les résultats. 
+
+
+### Cartographie
+
+Afin de pouvoir ultérieurment cartographier les résultats, nous avons ajusté les codes géographiques fournis par IPUMS à ceux des fonds de carte GADM. Pour chacun des pays nous pouvons donc représenter les résultats des analyses à deux niveaux administratifs différents.
+
+#### Bénin
+
+```{r adminBEN, echo=F}
+map<-readRDS("GEO/BEN/BEN1_map_OK2.RDS")
+map<-st_transform(map,3857)
+map<-map %>%  select(code=ADMIN1PCOD,
+                    nom = NAME_1)
+BENmap1<-map
+
+map<-readRDS("GEO/BEN/BEN2_map_OK.RDS")
+map<-st_transform(map,3857)
+map<-map %>%  select(code=ADM2PCODE,
+                    nom = NAME_2)
+BENmap2<-map
+
+
+
+
+mf_theme("dark")
+mf_shadow(BENmap2)
+mf_map(BENmap2, col = "#4e4f4f", border = "#808080", add= TRUE)
+mf_map(BENmap1,col=NA, border = "#808080", lwd=2, add=T)
+mf_label(BENmap1,var="nom",col="white",cex = 0.5,overlap = F)
+mf_layout(title = "Départements et communes du Bénin en 2013",
+          credits = "(c) EE CIST 2022-2023 - Fonds de carte GADM & OCHA")
+#dev.off()
+```
+
+#### Burkina Faso
+
+```{r adminBFA, echo=F}
+map<-readRDS("GEO/BFA/BFA1_map_OK.RDS")
+map<-st_transform(map,3857)
+map<-map %>%  select(code=ADMIN1PCOD,
+                    nom = NAME_1)
+BFAmap1<-map
+
+map<-readRDS("GEO/BFA/BFA2_map_OK.RDS")
+map<-st_transform(map,3857)
+map<-map %>%  select(code=ADMIN2PCOD,
+                    nom = NAME_2)
+BFAmap2<-map
+
+
+
+
+mf_theme("dark")
+mf_shadow(BFAmap2)
+mf_map(BFAmap2, col = "#4e4f4f", border = "#808080", add= TRUE)
+mf_map(BFAmap1,col=NA, border = "#808080", lwd=2, add=T)
+mf_label(BFAmap1,var="nom",col="white",cex = 0.5,overlap = F)
+mf_layout(title = "Régions et provinces du Burkina Faso en 2008",
+          credits = "(c) EE CIST 2022-2023 - Fonds de carte GADM & OCHA")
+#dev.off()
+```
+
+#### Mali
+
+```{r adminMLI, echo=F}
+map<-readRDS("GEO/MLI/MLI1_map_OK.RDS")
+map<-st_transform(map,3857)
+map<-map %>%  select(code=ADMIN1PCOD,
+                    nom = NAME_1)
+MLImap1<-map
+
+map<-readRDS("GEO/MLI/MLI2_map_OK.RDS")
+map<-st_transform(map,3857)
+map<-map %>%  select(code=ADMIN2PCOD,
+                    nom = NAME_2)
+MLImap2<-map
+
+
+
+
+mf_theme("dark")
+mf_shadow(MLImap2)
+mf_map(MLImap2, col = "#4e4f4f", border = "#808080", add= TRUE)
+mf_map(MLImap1,col=NA, border = "#808080", lwd=2, add=T)
+mf_label(MLImap1,var="nom",col="white",cex = 0.5,overlap = F)
+mf_layout(title = "Départements et cecles du Mali en 2009",
+          credits = "(c) EE CIST 2022-2023 - Fonds de carte GADM & OCHA")
+#dev.off()
+```
+
+
+## INDICATEURS GLOBAUX
+
+Nous pouvons dans un premier temps produire un certain nombre d'indicateurs nationaux en vue de comparer les trois pays retenus. 
+
+### Mobilité générale
+
+Comme nous l'avons expliqué en introduction, la mobilité n'est pas directement mesurable à l'aide de notre source car on ignore les étapes du parcours migratoire. On peut néanmoins essayer de calculer combien de personnes résident dans le lieu où ils sont nés, sachant que ce lieu peut être mesuré à deux niveaux géographiques différents.
+
+
+```{r}
+tab<-don
+tab$mob1 <- tab$COD_RESIDENCE_Niv1 != tab$COD_NAISSANCE_Niv1
+tab$mob2 <- tab$COD_RESIDENCE_Niv2 != tab$COD_NAISSANCE_Niv2
+tab$mob = as.factor(tab$mob1 + tab$mob2)
+levels(tab$mob)<-c("0-Stable","1-Local", "2-Régional")
+
+tabres<-tab %>% filter(is.na(mob)==F)%>%
+               group_by(Pays,mob) %>%
+              summarise(n = sum(POP_Total_IPUMS,na.rm=T)) %>%
+               mutate(pct = 100*n / sum(n))
+
+kable(tabres, caption = "Mobilité par pays et niveau administratif", digits = c(0,0,0,1))
+```
+
+
+- Dans le cas du **Bénin en 2013**,  79% des personnes résident dans leur commune de naissance 5% résident dans une autre commune du même département et 16% dans un autre département et donc une autre commune. La mobilité de la population sera donc de 16% au niveau départemental et de 21% au niveau communal. 
+
+- Dans le cas du **Burkina Faso en 2008**, lamobilité semble un peu plus faible  :   88% des personnes résident dans leur province de naissance,2% résident dans une autre province de la même région  et 10% dans une autre région.
+
+- Le cas du **Mali en 2009**  76% des personnes résident dans leur cercle de naissance 12% résident dans un autre cercle du même département et 12% dans un autre département et donc une autre commune. La mobilité de la population sera donc de 12% au niveau départemental et de 24% au niveau des cercles
+
+
+### Mobilité par sexe et par âge
+
+En se limitant aux mobilités inter-départementales ou inter-régionales, on peut examiner les différences par sexe ou par âge : 
+
+```{r}
+tab<-don
+tab$mob <- as.numeric(tab$COD_RESIDENCE_Niv1 != tab$COD_NAISSANCE_Niv1)
+
+
+tabres<-tab %>% filter(is.na(mob)==F)%>%
+               group_by(Pays) %>%
+               summarise(
+                         mob_hom = 100*sum(SEXE_Hom_IPUMS*mob)/sum(SEXE_Hom_IPUMS),
+                         mob_fem = 100*sum(SEXE_Fem_IPUMS*mob)/sum(SEXE_Fem_IPUMS),
+                         mob_tot = 100*sum(POP_Total_IPUMS*mob)/sum(POP_Total_IPUMS)
+                         )
+matres<-tabres[,-1]
+rownames(matres)<-tabres$Pays
+matres<-t(as.matrix(matres))
+row.names(matres) = c("Hommes","Femmes", "Ensemble")
+kable(matres, caption = "Mobilité inter-régionale par sexe (%)", digits = 1)
+```
+
+- **Commentaire** : la mobilité des femmes est légèrement plus forte que celle des hommes au Burkina Faso et au Bénin, mais pas au Mali où c'est l'inverse. 
+
+
+
+
+```{r}
+tab<-don
+tab$mob <- as.numeric(tab$COD_RESIDENCE_Niv1 != tab$COD_NAISSANCE_Niv1)
+
+
+tabres<-tab %>% filter(is.na(mob)==F)%>%
+               group_by(Pays) %>%
+               summarise(
+                         mob_0014 = 100*sum(AGE_0014_IPUMS*mob)/sum(AGE_0014_IPUMS),
+                         mob_1529 = 100*sum(AGE_1529_IPUMS*mob)/sum(AGE_1529_IPUMS),
+                         mob_3044 = 100*sum(AGE_3044_IPUMS*mob)/sum(AGE_3044_IPUMS),                                         mob_4559 = 100*sum(AGE_4559_IPUMS*mob)/sum(AGE_4559_IPUMS),
+                         mob_6074 = 100*sum(AGE_6074_IPUMS*mob)/sum(AGE_6074_IPUMS),
+                         mob_75pl = 100*sum(AGE_75pl_IPUMS*mob)/sum(AGE_75pl_IPUMS),  
+                         mob_tot = 100*sum(POP_Total_IPUMS*mob)/sum(POP_Total_IPUMS)
+                         )
+
+matres<-tabres[,-1]
+rownames(matres)<-tabres$Pays
+matres<-t(as.matrix(matres))
+row.names(matres) = c("0-14 ans","15-29 ans","30-44 ans","45-59 ans", "60-74 ans", "75 ans et +", "Ensemble")
+kable(matres, caption = "Mobilité inter-régionale par âge (%)", 
+      digits = 1)
+      
+```
+
+
+- **Commentaire** : dans le cas d'une migration *durée de vie* on pourrait s'attendre à ce qu'elle augmente avec l'âge puisque plus on est vieux, plus on a eu l'occasion de s'éloigner de son lieu de naissance. Mais en fait la mobilité n'est pas seulement une question d'**âge** mais aussi de **génération**. Ce qui signifie que les opportunités de mobilité à l'âge de 20-40 ans n'auront pas forcément été les mêmes pour des personnes nées en 1920 (migration dans les années 1940-60) et des personnes nées en 1960 (migration dans les années 1980-2000). 
+On constate dans les trois pays que la mobilité est la plus faible dans les âges extrêmes (jeunes de 0-14 ans et vieux de plus de 75 ans) tandis qu'elle est maximale dans la classe des 30-44 ans. 
+
+
+## INDICATEURS LOCAUX
+
+A la différence des indicateurs précédents, ils concernent non pas l'ensemble du pays mais chacune des unités spatiales. Nous allons les présenter en prenant l'exemple des 12 départements du Bénin : 
+
+### Exemple du Bénin
+
+On calcule pour chaque département les trois variables de stock suivantes :
+
+-   **STA** : le nombre de personnes recensées dans un département qui y sont né
+-   **EMI** : le nombre de personnes nées dans un département qui ont té recensées dans un autre
+-   **IMM** : le nombre de personnes recensées dans un département qui sont nées dans un autre.
+
+On en déduit trois autres variables de stock :
+
+-   **VOL = EMI+IMM** : le volume de personnes qui sont nées ou résident dans un département.
+-   **SOL = IMM-EMI** : le solde des arrivées et des départs d'un département parmi les survivants à la date du recensement
+-   **POMOY = STA + (EMI+IMM)/2** : Une estimation (très imparfaite) de la population moyenne du département entre la date du recensement et la date de naissance des personnes qui y résident.
+
+```{r}
+# Load code and name of units
+sel<-don %>% filter(Pays=="Benin", YEAR==2013) %>%
+             filter(substr(COD_NAISSANCE_Niv1,1,2)=="BJ")
+
+map<-readRDS("GEO/BEN/BEN1_map_OK2.RDS")
+map<-st_transform(map,3857)
+map<-map %>%  select(code=ADMIN1PCOD,
+                    nom = NAME_1)
+
+tab<-st_drop_geometry(map)
+
+# Non migrant
+STA <-  sel %>% filter(COD_NAISSANCE_Niv1==COD_RESIDENCE_Niv1) %>%
+              group_by(COD_RESIDENCE_Niv1) %>% 
+              summarize(N=sum(POP_Total_IPUMS)) %>%
+              select( code = COD_RESIDENCE_Niv1,
+                     STA = N)
+
+
+# Departures
+EMI <- sel %>% 
+              filter(COD_NAISSANCE_Niv1!=COD_RESIDENCE_Niv1) %>%
+              group_by(COD_NAISSANCE_Niv1) %>% 
+              summarize(N=sum(POP_Total_IPUMS)) %>%
+              select( code = COD_NAISSANCE_Niv1,
+                     EMI = N)
+
+# Arrivals
+IMM <- sel %>% filter(COD_NAISSANCE_Niv1!=COD_RESIDENCE_Niv1) %>%
+              group_by(COD_RESIDENCE_Niv1) %>% 
+              summarize(N=sum(POP_Total_IPUMS)) %>%
+              select( code = COD_RESIDENCE_Niv1,
+                     IMM = N)
+
+# Put together
+tab <- tab %>% right_join(STA) %>% 
+               left_join(EMI) %>%
+               left_join(IMM) %>%
+                mutate(VOL=EMI+IMM,
+                       SOL=IMM-EMI,
+                       POPMOY= STA+(EMI+IMM)/2)
+
+kable(tab,
+      digits = c(0,0,0,0,0,0,0,0),
+      caption = "Dynamique migratoires par région (effectifs)")
+
+```
+- **Exemple de lecture : ** Lors du recensement de 2013 on trouve dans le département de Borgou (BJ004) 1045930 personnes qui y résident et y sont nés et 143800 qui y résident mais sont venues d'un autre département. On trouve dans les autres départements du Bénin 56670 personnes qui ont déclaré être nées dans le Borgou. On en déduit que le solde des échanges du Borgou avec les autres départements du Bénin est positif puisque le bilan des arrivées et des départs est égal à (143800-56670 = +81730). Quand au volume il mesure la part de ce département dans les échanges migratoires du pays que ce soit comme lieu de départ ou d'arrivée et se monte à (143800+56670 = 200470). La population du département ayant été modifiée par les arrivées ou les départs, on essaye d'en estimer la valeur moyenne au cours de la durée de vie des habitants en faisant la moyenne des résidents et des natifs. 
+
+
+
+A partir de ce tableau d'effectif, on peut calculer les taux suivants  :
+
+-   **txEMI = 100 x EMI/POPMOY** : taux d'émigration (en %)
+-   **txIMM = 100 x IMM/POPMOY** : taux d'immigration (en %)
+-   **txMOB = 100 x VOL/POPMOY** : taux de mobilité (en %)
+-   **txACM = 100 x SOL/POPMOY** : taux d'ac. migratoire (en %)
+-   **txASY = SOL/VOL** : indicateur d'asymétrie des flux (compris entre -1 et +1)
+
+
+
+```{r}
+tab<-tab %>% mutate(txEMI = 100*EMI/POPMOY,
+                    txIMM = 100*IMM/POPMOY,
+                    txMOB = 100*VOL/POPMOY,
+                    txACM = 100*SOL/POPMOY,
+                    txASY = SOL/VOL)
+
+kable(tab[,c(1:2,8:13)],
+      digits = c(0,0,0,1,1,1,1,2),
+      caption = "Dynamique migratoires par région (taux)")
+```
+- **Exemples de lecture :** Le département du *Littoral* (où se trouve la capitale économique Cotonou) affiche le plus fort taux de mobilité (80.3%) et se caractérise à la fois par un fort taux d'émigration (48.7%) et un fort taux d'immigration (31.6%). Bien que son solde migratoire soit négatif (-17.1%) il s'agit d'une plaque tournante des échanges migratoires. Le département de *Kouffo* est caractérisé par une mobilité beaucoup plus faible (13%) et par une très forte différence entre les taux d'émigration (10.6%) et d'immigration (2.5%) ce qui aboutit à une forte asymétrie entre les arrivées et les départs (-0.62) associée à un solde négatif (-8.1%). Il s'agit donc d'un département répulsif. Le département de *Borgou* qui est la capitale du nord du pays se caractérise par une mobilité plus forte (17.5%) avec un taux d'immigration élevé (+12.5%) et un taux d'émigration faible (+4.9%) ce qui donne un solde positif (+7.6%) et une asymétrie favorable (+0.43). Enfin, l'*Atlantique* où se trouve la métropole d'Abomey-Calavi cumule les avantages puisque ce département attire à la fois des migrants de l'ensemble du pays mais aussi bénéficie du redéversement de la population de Cotonou où la densité d'occupation du sol aboutit à une saturation des possibilités de croissance. 
+
+### Exemple du Burkina Faso
+
+
+
+```{r}
+# Load code and name of units
+sel<-don %>% filter(Pays=="Burkina Faso", YEAR==2006)  %>%
+             filter(substr(COD_NAISSANCE_Niv1,1,2)=="BF")
+
+map<-readRDS("GEO/BFA/BFA1_map_OK.RDS")
+map<-st_transform(map,3857)
+map<-map %>%  select(code=ADMIN1PCOD,
+                    nom = NAME_1)
+
+tab<-st_drop_geometry(map)
+
+# Non migrant
+STA <-  sel %>% filter(COD_NAISSANCE_Niv1==COD_RESIDENCE_Niv1) %>%
+              group_by(COD_RESIDENCE_Niv1) %>% 
+              summarize(N=sum(POP_Total_IPUMS)) %>%
+              select( code = COD_RESIDENCE_Niv1,
+                     STA = N)
+
+
+# Departures
+EMI <- sel %>% 
+              filter(COD_NAISSANCE_Niv1!=COD_RESIDENCE_Niv1) %>%
+              group_by(COD_NAISSANCE_Niv1) %>% 
+              summarize(N=sum(POP_Total_IPUMS)) %>%
+              select( code = COD_NAISSANCE_Niv1,
+                     EMI = N)
+
+# Arrivals
+IMM <- sel %>% filter(COD_NAISSANCE_Niv1!=COD_RESIDENCE_Niv1) %>%
+              group_by(COD_RESIDENCE_Niv1) %>% 
+              summarize(N=sum(POP_Total_IPUMS)) %>%
+              select( code = COD_RESIDENCE_Niv1,
+                     IMM = N)
+
+# Put together
+tab <- tab %>% right_join(STA) %>% 
+               left_join(EMI) %>%
+               left_join(IMM) %>%
+                mutate(VOL=EMI+IMM,
+                       SOL=IMM-EMI,
+                       POPMOY= STA+(EMI+IMM)/2)
+
+kable(tab,
+      digits = c(0,0,0,0,0,0,0,0),
+      caption = "Dynamique migratoires par région (effectifs)")
+
+```
+
+- **Commentaire** : 
+
+
+
+```{r}
+tab<-tab %>% mutate(txEMI = 100*EMI/POPMOY,
+                    txIMM = 100*IMM/POPMOY,
+                    txMOB = 100*VOL/POPMOY,
+                    txACM = 100*SOL/POPMOY,
+                    txASY = SOL/VOL)
+
+kable(tab[,c(1:2,8:13)],
+      digits = c(0,0,0,1,1,1,1,2),
+      caption = "Dynamique migratoires par région (taux)")
+```
+
+
+- **Commentaire** : 
+
+### Exemple du Mali
+
+On calcule les mêmes tableaux que pour le Bénin sans les commenter :
+
+```{r}
+# Load code and name of units
+sel<-don %>% filter(Pays=="Mali", YEAR==2009,
+                    substr(COD_NAISSANCE_Niv1,1,2)=="ML",
+                    COD_NAISSANCE_Niv1 !="ML10"
+                    )
+
+map<-readRDS("GEO/MLI/MLI1_map_OK.RDS")
+map<-st_transform(map,3857)
+map<-map %>%  select(code=ADMIN1PCOD,
+                    nom = NAME_1)
+
+tab<-st_drop_geometry(map)
+
+# Non migrant
+STA <-  sel %>% filter(COD_NAISSANCE_Niv1==COD_RESIDENCE_Niv1) %>%
+              group_by(COD_RESIDENCE_Niv1) %>% 
+              summarize(N=sum(POP_Total_IPUMS)) %>%
+              select( code = COD_RESIDENCE_Niv1,
+                     STA = N)
+
+
+# Departures
+EMI <- sel %>% 
+              filter(COD_NAISSANCE_Niv1!=COD_RESIDENCE_Niv1) %>%
+              group_by(COD_NAISSANCE_Niv1) %>% 
+              summarize(N=sum(POP_Total_IPUMS)) %>%
+              select( code = COD_NAISSANCE_Niv1,
+                     EMI = N)
+
+# Arrivals
+IMM <- sel %>% filter(COD_NAISSANCE_Niv1!=COD_RESIDENCE_Niv1) %>%
+              group_by(COD_RESIDENCE_Niv1) %>% 
+              summarize(N=sum(POP_Total_IPUMS)) %>%
+              select( code = COD_RESIDENCE_Niv1,
+                     IMM = N)
+
+# Put together
+tab <- tab %>% right_join(STA) %>% 
+               left_join(EMI) %>%
+               left_join(IMM) %>%
+                mutate(VOL=EMI+IMM,
+                       SOL=IMM-EMI,
+                       POPMOY= STA+(EMI+IMM)/2)
+tab<-tab[order(tab$code),]
+kable(tab,
+      digits = c(0,0,0,0,0,0,0,0),
+      caption = "Dynamique migratoires par région (effectifs)",
+      row.names = F)
+
+```
+
+- **Commentaire** : 
+
+
+
+```{r}
+tab<-tab %>% mutate(txEMI = 100*EMI/POPMOY,
+                    txIMM = 100*IMM/POPMOY,
+                    txMOB = 100*VOL/POPMOY,
+                    txACM = 100*SOL/POPMOY,
+                    txASY = SOL/VOL)
+
+kable(tab[,c(1:2,8:13)],
+      digits = c(0,0,0,1,1,1,1,2),
+      caption = "Dynamique migratoires par région (taux)")
+```
+
+
+- **Commentaire** : 
+
+
+
+
+## MATRICES O-D
+
+Au delà des indicateurs simples décrits dans la section précédente, on peut procéder à une analyse spatiale des déplacements en construisant des matrices origine-destination qui mesurent le flux de personnes entre leurs lieux de naissance et leurs lieux de résidence. Cela ouvre une vaste gamme de possibilités de traitements que nous allons illustrer par l'exemple du recensement de 2013 au Bénin mais que l'on pourra évidemment reproduire pour d'autres dates ou d'autres pays.
+
+### Exemple du Bénin
+
+L'établissement de la matrice de flux est très facile. Elle suppose d'établir d'abord un tableau d'interactions au format "long"
+
+```{r}
+# Load individual data
+# Load code and name of units
+sel<-don %>% filter(Pays=="Benin", YEAR==2013) %>%
+             filter(substr(COD_NAISSANCE_Niv1,1,2)=="BJ")
+
+map<-readRDS("GEO/BEN/BEN1_map_OK2.RDS")
+map<-st_transform(map,3857)
+map<-map %>%  select(code=ADMIN1PCOD,
+                    nom = NAME_1)
+
+tab<-st_drop_geometry(map)
+codei<-tab
+names(codei)<-c("i", "name_i")
+codej<-tab
+names(codej)<-c("j", "name_j")
+
+
+# Compute interactions
+int <- sel %>%  group_by(i = COD_NAISSANCE_Niv1,
+                        j = COD_RESIDENCE_Niv1) %>%
+                   summarize(Fij = sum(POP_Total_IPUMS)) %>%
+                   left_join(codei) %>%
+                   left_join(codej) %>%
+                   select(i,j,name_i,name_j, Fij)
+# Visualize
+kable(head(int), caption = "Migrations durée de vie  (format long)")
+  
+```
+
+On peut ensuite transformer le tableau d'interaction en format large en utilisant au choix la fonction `dcast()` (des packages reshape2 et data.table ) ou la procédure `pivot_wider()` du package tidyr qui fait partie de l'univers tidyverse.
+
+```{r}
+int2<- reshape2::dcast(int, formula = name_i~name_j, values.var=Fij)
+kable(int2, caption ="Migrations durée de vie (format large)")
+```
+
+On peut enfin transformer le tableau en un objet de type matrice ce qui suppose de transformer la variable name_i en nom des lignes :
+
+```{r}
+int3 <- as.matrix(int2[,-1])
+row.names(int3)<-int2[[1]]
+kable(addmargins(int3), caption ="Migrations durée de vie au Bénin en 2013 (matrice)")
+```
+
+L'intérêt du format matriciel est de faciliter des opérations mathématiques telles que le calcul de pourcentage en ligne ou le pourcentage en colonnes qui vont indiquer respectivement des probabilités de destination ou des probabilités d'origines.On va illustrer ces possibilités sur une matrice dont on a retiré la diagonale
+
+```{r}
+int4<-int3
+diag(int4)<-NA
+int4 <- 100*int4/apply(int4,1,sum, na.rm=T)
+diag(int4)<-0
+int4<-addmargins(int4,2,sum)
+kable(int4, digits=1, caption = "Probabilité de destination des migrants durée de vie  (en %)")
+```
+
+-   **Commentaire :** Si l'on prend l'exemple des personnes nées à *Alibori* qui résident dans un autre département en 2013, on constate que plus de la moitié d'entre elles (51.7%) on été recensés dans le département de *Borgou*, 14.3% dans le département voisin d'Atacora et seulement 8.9 % vers Cotonou (département de l'*Atlantique*). Inversement, les personnes nées dans le département du *Mono* qui résident dans un autre département en 2013 ont choisi majoritairement la capitale Cotonou (51.9%) et sa périphérie proche du département du *Littoral* (24.0%). On voit donc bien apparaître des clivages liés à la distance aux métropoles principales du pays qui polarisent chacune un espace migratoire distinct.
+
+Procédons à l'opération inverse de calcul des origines mais en ne retirant pas cette fois-ci la diagonale afin de voir la part des populations autchtones
+
+```{r}
+int5<-t(int3)
+int5 <- 100*int5/apply(int5,1,sum, na.rm=T)
+int5<-t(int5)
+int5<-addmargins(int5,1,sum)
+kable(int5, digits=1, caption = "Département de naissance des individus (en %)")
+```
+
+-   **Commentaire** : La diagonale de cette matrice montre le degré de diversité des origines départementales des population qui résident dans chaque département en 2013. Les départements isolés et peu attractifs ont des taux très élevés de populations nées dans le même département, ce que l'on peut voir avec les départements d'*Alibori* (97.7%), de *Couffo* (97.4%) ou d'*Atacora* (96.4%). Inversement les départements métropolitains qui ont attiré des migrants de tous le pays affichent des taux plus faibles de populations nées dans le même département ce que l'on peut voir pour les départements de l'*Atlantique* (67.9%), du *Littoral* (65.4%), des *Collines* (88.8%) ou de *Borgou* (87.9%).
+
+
+### Exemple du Burkina Faso
+
+
+```{r}
+# Load individual data
+# Load code and name of units
+sel<-don %>% filter(Pays=="Burkina Faso", YEAR==2006) %>%
+             filter(substr(COD_NAISSANCE_Niv1,1,2)=="BF")
+
+map<-readRDS("GEO/BFA/BFA1_map_OK.RDS")
+map<-st_transform(map,3857)
+map<-map %>%  select(code=ADMIN1PCOD,
+                    nom = NAME_1)
+
+tab<-st_drop_geometry(map)
+codei<-tab
+names(codei)<-c("i", "name_i")
+codej<-tab
+names(codej)<-c("j", "name_j")
+
+
+# Compute interactions
+int <- sel %>%  group_by(i = COD_NAISSANCE_Niv1,
+                        j = COD_RESIDENCE_Niv1) %>%
+                   summarize(Fij = sum(POP_Total_IPUMS)) %>%
+                   left_join(codei) %>%
+                   left_join(codej) %>%
+                   select(i,j,name_i,name_j, Fij)
+# Visualize
+#kable(head(int), caption = "Migrations durée de vie  (format long)")
+  
+
+int2<- reshape2::dcast(int, formula = name_i~name_j, values.var=Fij)
+#kable(int2, caption ="Migrations durée de vie (format large)")
+
+int3 <- as.matrix(int2[,-1])
+row.names(int3)<-int2[[1]]
+kable(addmargins(int3), caption ="Migrations durée de vie  (matrice)")
+```
+
+-   **Commentaire :**
+
+
+```{r}
+int4<-int3
+diag(int4)<-NA
+int4 <- 100*int4/apply(int4,1,sum, na.rm=T)
+diag(int4)<-0
+int4<-addmargins(int4,2,sum)
+kable(int4, digits=1, caption = "Probabilité de destination des migrants durée de vie  (en %)")
+```
+
+
+-   **Commentaire :** 
+
+```{r}
+int5<-t(int3)
+int5 <- 100*int5/apply(int5,1,sum, na.rm=T)
+int5<-t(int5)
+int5<-addmargins(int5,1,sum)
+kable(int5, digits=1, caption = "Département de naissance des individus (en %)")
+```
+
+-   **Commentaire** : 
+
+
+### Exemple du Mali
+
+
+```{r}
+# Load individual data
+# Load code and name of units
+sel<-don %>% filter(Pays=="Mali", YEAR==2009,
+                    substr(COD_NAISSANCE_Niv1,1,2)=="ML",
+                    COD_NAISSANCE_Niv1 !="ML10"
+                    )
+
+map<-readRDS("GEO/MLI/MLI1_map_OK.RDS")
+map<-st_transform(map,3857)
+map<-map %>%  select(code=ADMIN1PCOD,
+                    nom = NAME_1)
+
+tab<-st_drop_geometry(map)
+
+codei<-tab
+names(codei)<-c("i", "name_i")
+codej<-tab
+names(codej)<-c("j", "name_j")
+
+
+# Compute interactions
+int <- sel %>%  group_by(i = COD_NAISSANCE_Niv1,
+                        j = COD_RESIDENCE_Niv1) %>%
+                   summarize(Fij = sum(POP_Total_IPUMS)) %>%
+                   left_join(codei) %>%
+                   left_join(codej) %>%
+                   select(i,j,name_i,name_j, Fij)
+# Visualize
+#kable(head(int), caption = "Migrations durée de vie  (format long)")
+  
+
+int2<- reshape2::dcast(int, formula = name_i~name_j, values.var=Fij)
+#kable(int2, caption ="Migrations durée de vie (format large)")
+
+int3 <- as.matrix(int2[,-1])
+row.names(int3)<-int2[[1]]
+kable(addmargins(int3), caption ="Migrations durée de vie  (matrice)")
+```
+
+-   **Commentaire :**
+
+
+```{r}
+
+int4<-int3
+diag(int4)<-NA
+int4 <- 100*int4/apply(int4,1,sum, na.rm=T)
+diag(int4)<-0
+int4<-addmargins(int4,2,sum)
+kable(int4, digits=1, caption = "Probabilité de destination des migrants durée de vie  (en %)")
+```
+
+-   **Commentaire :** 
+
+```{r}
+int5<-t(int3)
+int5 <- 100*int5/apply(int5,1,sum, na.rm=T)
+int5<-t(int5)
+int5<-addmargins(int5,1,sum)
+kable(int5, digits=1, caption = "Département de naissance des individus (en %)")
+```
+
+-   **Commentaire** : 
